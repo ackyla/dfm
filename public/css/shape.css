@@ -1,0 +1,11 @@
+img.square {
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	border-radius: 20px;
+}
+
+img.oval {
+	-moz-border-radius: 80px / 100px;
+	-webkit-border-radius: 80px / 100px;
+	border-radius: 80px / 100px;
+}
