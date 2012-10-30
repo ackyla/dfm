@@ -18,7 +18,12 @@ $(function(){
           url: "ejs/absence.ejs"
         }).render());
 				$("#absence-container").prepend(absence);
-				$(".absence-wrapper").draggable();
+				$(".absence-wrapper").draggable({
+						drag: function(){
+								$(this).find("input.position-x").val($(this).css("left"));
+								$(this).find("input.position-y").val($(this).css("top"));
+						}
+				});
 		});
 		
 		$("#frame-container").selectable();

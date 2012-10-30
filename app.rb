@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'sinatra'
 
 get '/' do
@@ -6,4 +7,8 @@ end
 
 get '/edit' do
   erb :edit
+end
+
+post '/create' do
+  params[:x]
 end
