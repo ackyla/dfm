@@ -9,7 +9,7 @@ $(function(){
 		// フレームリスト表示
 		frame = $(new EJS({
 				url: "ejs/frame.ejs"
-		}).render());
+		}).render({ shapes: ["square", "oval", "square", "square", "square", "oval", "oval"] }));
 		$("#frame-container").prepend(frame);
 		
 		// 欠席者追加
