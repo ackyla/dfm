@@ -18,11 +18,11 @@ $(function(){
 
 });
 
-function addAbsence() {
+function addAbsence(url) {
 		// 欠席者追加
 		absence = $(new EJS({
         url: "ejs/absence.ejs"
-    }).render());
+    }).render({ picture: url }));
 		$("#absence-container").prepend(absence);
 		$(".absence-wrapper").draggable({
 				drag: function(){

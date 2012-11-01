@@ -42,7 +42,11 @@ class DfmApp < Sinatra::Base
     friends = user.friends({"locale" => "ja_JP"})
     content_type :json
     friends.to_a.map{|friend|
-      {"name" => friend.name, "picture" => friend.picture({"&width=" => "34", "&height=" => "34"})}
+      {
+        "name" => friend.name, 
+        "picture" => friend.picture({"&width=" => "34", "&height=" => "34"}),
+        "absence" => friend.picture({"&width=" => "100", "&height=" => "120"})
+      }
     }.to_json
   end
 
