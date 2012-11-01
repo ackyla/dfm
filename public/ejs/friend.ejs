@@ -1,4 +1,6 @@
-<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;">
-	<img src="img/list_picture.jpg" style="width: 34px; height: 34px; margin-right: 5px;">
-	<span>Akira Shirai</span>
+<% for(var i=0; i < friends.length; i ++) { %>
+<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;" onClick="addAbsence();">
+	<img src="<%= friends[i]['picture'] %>" style="width: 34px; height: 34px; margin-right: 5px;">
+	<span><%= friends[i]['name'] %></span>
 </div>
+<% } %>
