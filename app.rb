@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 require 'sinatra/base'
 require 'fb_graph'
+require 'json'
 
 class DfmApp < Sinatra::Base
-  
+
   configure do
     APP_KEY, APP_SECRET = File.open(".key").read.split
   end
+
+  use Rack::Session::Cookie
 
   error do
     "sorry"
@@ -15,7 +18,7 @@ class DfmApp < Sinatra::Base
   not_found do
     "404"
   end
-  
+
   get '/' do
     erb :index
   end
@@ -27,18 +30,22 @@ class DfmApp < Sinatra::Base
 
   get '/auth/callback' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
-    auth.client.authorization_code = params[:code]
-    access_token = auth.client.access_token! :client_auth_body
-    user = FbGraph::User.me(access_token).fetch
-    friends = user.friends({"locale" => "ja_JP"})
-    names = ""
-    friends.each do |friend|
-      names += "<img style='border: 1px solid black;' src='#{friend.picture({"&width=" => "34", "&height=" => "34"})}' /> #{friend.name}<br />"
-    end
-    names
-    #redirect '/edit'
+    client = auth.client
+    client.authorization_code = params[:code]
+    access_token = client.access_token! :client_auth_body
+    session[:token] = access_token.access_token
+    redirect '/edit'
   end
   
+  get '/friends.json' do
+    user = FbGraph::User.me(session[:token]).fetch
+    friends = user.friends({"locale" => "ja_JP"})
+    content_type :json
+    friends.to_a.map{|friend|
+      {"name" => friend.name, "picture" => friend.picture({"&width=" => "34", "&height=" => "34"})}
+    }.to_json
+  end
+
   get '/edit' do
     erb :edit
   end
