@@ -12,10 +12,16 @@ $(function(){
 		frame = $(new EJS({
 				url: "ejs/frame.ejs"
 		}).render({ shapes: ["square", "oval", "square", "square", "square", "oval", "oval"] }));
-		$("#frame-container").prepend(frame);
-		
+		$("#frame-container").prepend(frame);		
 		$("#frame-container").selectable();
 
+		
+		$.getJSON("http://localhost:9393/photos.json", function(json){
+				photo = $(new EJS({
+						url: "ejs/album_list.ejs"
+				}).render({ photos: json }));
+				$("#edit").append(photo);
+		});
 });
 
 function addAbsence(url) {
@@ -30,4 +36,12 @@ function addAbsence(url) {
 						$(this).find("input.position-y").val($(this).css("top"));
 				}
 		});
+}
+
+function addPhoto(source) {
+		photo = $(new EJS({
+				url: "ejs/photo.ejs"
+		}).render({ source: source }));
+		$("#photo-container .photo-wrapper .photo").remove();
+		$("#photo-container .photo-wrapper").prepend(photo);
 }

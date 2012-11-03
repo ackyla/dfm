@@ -25,7 +25,7 @@ class DfmApp < Sinatra::Base
 
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
-    redirect auth.client.authorization_uri(:scope => [:email])
+    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])
   end
 
   get '/auth/callback' do
@@ -38,7 +38,7 @@ class DfmApp < Sinatra::Base
   end
   
   get '/friends.json' do
-    user = FbGraph::User.me(session[:token]).fetch
+    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
     content_type :json
     friends.to_a.map{|friend|
@@ -50,6 +50,30 @@ class DfmApp < Sinatra::Base
     }.to_json
   end
 
+  get '/photos.json' do
+    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+    photos = user.photos({"type" => "tagged"})
+    albums = user.albums
+    tagged = photos.to_a.map{|photo|
+      {
+        "source" => photo.source
+      }
+    }
+    photos = albums.to_a.map{|album|
+      {
+        "name" => album.name,
+        "photos" => album.photos.to_a.map{ |photo|
+          {
+            "source" => photo.source
+          }
+        }
+      }
+    }
+    photos.unshift({"name" => "あなたが写っている写真", "photos" => tagged})
+    content_type :json
+    photos.to_json
+  end
+  
   get '/edit' do
     erb :edit
   end

@@ -1,0 +1,15 @@
+<div id="album-list-container">
+	<ul class="album-list">
+		<% for(var i=0; i < photos.length; i ++) { %>
+		<li class="album-name">
+			<span><%= photos[i]['name'] %></span>
+			<% for(var j=0; j < photos[i]['photos'].length; j ++) { %>
+			<div style="width: 100px; height: 100px; text-align: center; display: inline-block;">
+				<img src="<%= photos[i]['photos'][j]['source'] %>" style="max-width: 100px; max-height: 100px" onclick="addPhoto($(this).attr('src'));"/>
+			</div>
+      <% } %>
+		</li>
+		<% } %>
+	</ul>
+</div>
+	
