@@ -5,7 +5,7 @@
 			<span><%= photos[i]['name'] %></span>
 			<% for(var j=0; j < photos[i]['photos'].length; j ++) { %>
 			<div style="width: 100px; height: 100px; text-align: center; display: inline-block;">
-				<img src="<%= photos[i]['photos'][j]['source'] %>" style="max-width: 100px; max-height: 100px" onclick="addPhoto($(this).attr('src'));"/>
+				<div style="background: url(<%= photos[i]['photos'][j]['source'] %>) no-repeat center center; width: 100px; height: 100px; background-size: cover;" onclick="addPhoto($(this).attr('src'));"></div>
 			</div>
       <% } %>
 		</li>

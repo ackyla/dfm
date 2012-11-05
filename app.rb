@@ -50,6 +50,21 @@ class DfmApp < Sinatra::Base
     }.to_json
   end
 
+  get '/albums.json' do
+    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+    tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
+    albums = user.albums({"locale" => "ja_JP"})
+    albums = albums.to_a.map{|album|
+      {
+        "name" => album.name,
+        "cover_photo" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source
+      }
+    }
+    albums.unshift({"name" => "あなたが写っている写真", "cover_photo" => tagged})
+    content_type :json
+    albums.to_json
+  end
+
   get '/photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     photos = user.photos({"type" => "tagged"})
