@@ -11,6 +11,7 @@
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/jquery.isotope.min.js"></script>
 		<script type="text/javascript" src="js/ejs.js"></script>
 		<script type="text/javascript" src="js/dfm.js"></script>
 		<!-- /JS -->
@@ -49,7 +50,20 @@
 					<!-- PHOTO -->
 					<form method="post" id="form" action="/create" style="margin: 0;">
 						<div id="photo-container" style="display: block; margin: 10px; padding: 9px; border: 1px solid black;">
-							<div class="photo-wrapper" style="width: 740px; min-height: 540px; display: block; border: 1px solid black; position: relative;">
+							<div id="photo-nav" style="display: block; border: 1px solid black; position: relative;">
+								<div id="photo-nav-inner" style="padding: 5px; position: relative;">
+									<ul class="breadcrumb">
+										<li class="active"><a href="#">アルバム</a></li>
+									</ul>
+								</div>
+							</div>
+							<div id="photo-select-wrapper" style="min-height: 780px; display: block; border: 1px solid black; position: relative;">
+								<div id="photo-select-inner" style="padding: 10px 39px; position: relative;">
+									<div id="item-container">
+									</div>
+								</div>
+							</div>
+							<div class="photo-wrapper" style="min-height: 540px; display: block; border: 1px solid black; position: relative;">
 								<!-- PHOTO.EJS -->
 								<div id="absence-container">
 									<!-- ABSENCE.EJS -->

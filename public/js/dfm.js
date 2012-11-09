@@ -15,12 +15,17 @@ $(function(){
 		$("#frame-container").prepend(frame);		
 		$("#frame-container").selectable();
 
-		
-		$.getJSON("http://localhost:9393/photos.json", function(json){
-				photo = $(new EJS({
-						url: "ejs/album_list.ejs"
-				}).render({ photos: json }));
-				$("#edit").append(photo);
+		var $container = $("#item-container");
+		$container.isotope({
+				itemSelector: ".item",
+				layoutMode: "fitRows"
+		});
+
+		$.getJSON("http://localhost:9393/albums.json", function(json){
+				var $photo = $(new EJS({
+						url: "ejs/isotope_item.ejs"
+				}).render({ items: json }));
+				$container.isotope("insert", $photo);
 		});
 });
 
