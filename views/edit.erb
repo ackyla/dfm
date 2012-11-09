@@ -53,13 +53,15 @@
 							<div id="photo-nav" style="display: block; border: 1px solid black; position: relative;">
 								<div id="photo-nav-inner" style="padding: 5px; position: relative;">
 									<ul class="breadcrumb">
-										<li class="active"><a href="#">アルバム</a></li>
+										<li class="active"><a href="#" onclick="$('#album-item-container').show(); $('#photo-item-container').hide(); return false;">アルバム</a></li>
 									</ul>
 								</div>
 							</div>
 							<div id="photo-select-wrapper" style="min-height: 780px; display: block; border: 1px solid black; position: relative;">
 								<div id="photo-select-inner" style="padding: 10px 39px; position: relative;">
-									<div id="item-container">
+									<div id="album-item-container">
+									</div>
+									<div id="photo-item-container" style="display: none;">
 									</div>
 								</div>
 							</div>

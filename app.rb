@@ -56,39 +56,44 @@ class DfmApp < Sinatra::Base
     albums = user.albums({"locale" => "ja_JP"})
     albums = albums.to_a.map{|album|
       {
+        "id" => album.identifier,
         "name" => album.name,
-        "cover_photo" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source
+        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source
       }
     }
-    albums.unshift({"name" => "あなたが写っている写真", "cover_photo" => tagged})
+    albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged})
     content_type :json
     albums.to_json
   end
 
-  get '/photos.json' do
+  get '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     photos = user.photos({"type" => "tagged"})
-    albums = user.albums
-    tagged = photos.to_a.map{|photo|
+    photos = photos.to_a.map{|photo|
       {
+        "id" => photo.identifier,
+        "name" => photo.name.nil? ? "無題" : photo.name,
         "source" => photo.source
       }
     }
-    photos = albums.to_a.map{|album|
-      {
-        "name" => album.name,
-        "photos" => album.photos.to_a.map{ |photo|
-          {
-            "source" => photo.source
-          }
-        }
-      }
-    }
-    photos.unshift({"name" => "あなたが写っている写真", "photos" => tagged})
     content_type :json
     photos.to_json
   end
-  
+
+  get '/photos.json' do
+    id = params[:id]
+    album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
+    photos = album.photos.to_a.map{|photo|
+      {
+        "id" => photo.identifier,
+        "name" => photo.name.nil? ? "無題" : photo.name,
+        "source" => photo.source
+      }
+    }
+    content_type :json
+    photos.to_json
+  end
+
   get '/edit' do
     erb :edit
   end

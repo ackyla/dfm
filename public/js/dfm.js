@@ -15,8 +15,13 @@ $(function(){
 		$("#frame-container").prepend(frame);		
 		$("#frame-container").selectable();
 
-		var $container = $("#item-container");
-		$container.isotope({
+		var $albumContainer = $("#album-item-container");		
+		$albumContainer.isotope({
+				itemSelector: ".item",
+				layoutMode: "fitRows"
+		});
+		var $photoContainer = $("#photo-item-container");		
+		$photoContainer.isotope({
 				itemSelector: ".item",
 				layoutMode: "fitRows"
 		});
@@ -25,9 +30,33 @@ $(function(){
 				var $photo = $(new EJS({
 						url: "ejs/isotope_item.ejs"
 				}).render({ items: json }));
-				$container.isotope("insert", $photo);
+				$albumContainer.isotope("insert", $photo);
 		});
 });
+
+function getPhotos(id) {
+		var $albumContainer = $("#album-item-container");
+		var $photoContainer = $("#photo-item-container");		
+
+		$albumContainer.hide();
+		$photoContainer.show();
+		
+		if(id == 0){
+				$.getJSON("http://localhost:9393/tagged_photos.json", function(json){
+						var $photo = $(new EJS({
+								url: "ejs/isotope_item.ejs"
+						}).render({ items: json }));
+						$photoContainer.isotope("insert", $photo);
+				});
+		}else{
+				$.getJSON("http://localhost:9393/photos.json?id="+id, function(json){
+						var $photo = $(new EJS({
+								url: "ejs/isotope_item.ejs"
+						}).render({ items: json }));
+						$photoContainer.isotope("insert", $photo);
+				});
+		}
+}
 
 function addAbsence(url) {
 		// 欠席者追加
