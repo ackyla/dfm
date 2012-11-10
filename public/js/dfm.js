@@ -31,6 +31,10 @@ $(function(){
 						url: "ejs/isotope_item.ejs"
 				}).render({ items: json }));
 				$albumContainer.isotope("insert", $photo);
+				$photo.click(function(){
+						getPhotos($(this).attr("data-id"));
+						return false;
+				});
 		});
 });
 
@@ -41,12 +45,16 @@ function getPhotos(id) {
 		$albumContainer.hide();
 		$photoContainer.show();
 		
-		if(id == 0){
+		if(id == "0"){
 				$.getJSON("http://localhost:9393/tagged_photos.json", function(json){
 						var $photo = $(new EJS({
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
 						$photoContainer.isotope("insert", $photo);
+						$photo.click(function(){
+								addPhoto($(this).attr("data-source"));
+								return false;
+						});
 				});
 		}else{
 				$.getJSON("http://localhost:9393/photos.json?id="+id, function(json){
@@ -54,6 +62,10 @@ function getPhotos(id) {
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
 						$photoContainer.isotope("insert", $photo);
+						$photo.click(function(){
+								addPhoto($(this).attr("data-source"));
+								return false;
+						});
 				});
 		}
 }

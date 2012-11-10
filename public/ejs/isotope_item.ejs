@@ -1,6 +1,6 @@
 <% for(var i=0; i < items.length; i ++) { %>
-<div class="item" style="margin: 10px;">
-	<a href="#" onclick="getPhotos(<%= items[i]['id'] %>); return false;">
+<div data-id="<%= items[i]['id'] %>" data-source="<%= items[i]['source'] %>" class="item" style="margin: 10px;">
+	<a href="#">
 		<div style="background: url(<%= items[i]['source'] %>) no-repeat center center; width: 200px; height: 200px; background-size: cover; position: relative">
 			<div style="background: rgba(0,0,0,.6); padding: 10px; position: absolute; bottom: 0px;">
 				<p style="width: 180px; color: white; font-weight: bold; white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis;"><%= items[i]['name'] %></p>
