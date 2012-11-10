@@ -32,26 +32,46 @@ $(function(){
 				}).render({ items: json }));
 				$albumContainer.isotope("insert", $photo);
 				$photo.click(function(){
-						getPhotos($(this).attr("data-id"));
+						if($(this).hasClass("clicked")){
+								showPhotos($(this).attr("data-id"));
+						}else{
+								$(this).addClass("clicked");
+								getPhotos($(this).attr("data-id"));
+						}
 						return false;
 				});
 		});
 });
 
-function getPhotos(id) {
-		var $photoSelectWrapper = $("#photo-select-wrapper");
+function showPhotos(id) {
 		var $albumContainer = $("#album-item-container");
-		var $photoContainer = $("#photo-item-container");		
+		var $photoContainer = $("#photo-item-container");
 
 		$albumContainer.hide();
 		$photoContainer.show();
+
+		$photoContainer.isotope({ filter: ".album-"+id });
+}
+
+function getPhotos(id) {
+		var $photoSelectWrapper = $("#photo-select-wrapper");
+		var $albumContainer = $("#album-item-container");
+		var $photoContainer = $("#photo-item-container");
+
+		$albumContainer.hide();
+		$photoContainer.show();
+		$photoContainer.isotope({ filter: ":not(.item)" });
 		
 		if(id == "0"){
 				$.getJSON("http://localhost:9393/tagged_photos.json", function(json){
 						var $photo = $(new EJS({
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
+						$photo.each(function(){
+								$(this).addClass("album-"+id);
+						});
 						$photoContainer.isotope("insert", $photo);
+						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								addPhoto($(this).attr("data-source"));
 								$photoSelectWrapper.hide()
@@ -63,7 +83,11 @@ function getPhotos(id) {
 						var $photo = $(new EJS({
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
+						$photo.each(function(){
+								$(this).addClass("album-"+id);
+						});
 						$photoContainer.isotope("insert", $photo);
+						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								addPhoto($(this).attr("data-source"));
 								$photoSelectWrapper.hide()
