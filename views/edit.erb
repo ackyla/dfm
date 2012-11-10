@@ -53,11 +53,11 @@
 							<div id="photo-nav" style="display: block; border: 1px solid black; position: relative;">
 								<div id="photo-nav-inner" style="padding: 5px; position: relative;">
 									<ul class="breadcrumb">
-										<li class="active"><a href="#" onclick="$('#album-item-container').show(); $('#photo-item-container').hide(); return false;">アルバム</a></li>
+										<li class="active"><a href="#" onclick="$('#photo-select-wrapper').show(); $('#album-item-container').show(); $('#photo-item-container').hide(); $('.photo-wrapper').hide(); return false;">アルバム</a></li>
 									</ul>
 								</div>
 							</div>
-							<div id="photo-select-wrapper" style="min-height: 780px; display: block; border: 1px solid black; position: relative;">
+							<div id="photo-select-wrapper" style="display: block; border: 1px solid black; position: relative;">
 								<div id="photo-select-inner" style="padding: 10px 39px; position: relative;">
 									<div id="album-item-container">
 									</div>
@@ -65,7 +65,7 @@
 									</div>
 								</div>
 							</div>
-							<div class="photo-wrapper" style="min-height: 540px; display: block; border: 1px solid black; position: relative;">
+							<div class="photo-wrapper" style="min-height: 540px; display: none; border: 1px solid black; position: relative;">
 								<!-- PHOTO.EJS -->
 								<div id="absence-container">
 									<!-- ABSENCE.EJS -->

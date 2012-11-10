@@ -39,6 +39,7 @@ $(function(){
 });
 
 function getPhotos(id) {
+		var $photoSelectWrapper = $("#photo-select-wrapper");
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");		
 
@@ -53,6 +54,7 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photo.click(function(){
 								addPhoto($(this).attr("data-source"));
+								$photoSelectWrapper.hide()
 								return false;
 						});
 				});
@@ -64,6 +66,7 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photo.click(function(){
 								addPhoto($(this).attr("data-source"));
+								$photoSelectWrapper.hide()
 								return false;
 						});
 				});
@@ -85,9 +88,12 @@ function addAbsence(url) {
 }
 
 function addPhoto(source) {
+		$photoWrapper = $("#photo-container .photo-wrapper");
+		
 		photo = $(new EJS({
 				url: "ejs/photo.ejs"
 		}).render({ source: source }));
+		$photoWrapper.show();
 		$("#photo-container .photo-wrapper .photo").remove();
 		$("#photo-container .photo-wrapper").prepend(photo);
 }
