@@ -1,47 +1,99 @@
 $(function(){
 
-		// 欠席者リスト表示
-		$.getJSON("http://localhost:9393/friends.json", function(json){
-				friend = $(new EJS({
-						url: "ejs/friend.ejs"
-				}).render({ friends: json }));
-				$("#friend-container").append(friend);
-		});
-		
-		// フレームリスト表示
-		frame = $(new EJS({
-				url: "ejs/frame.ejs"
-		}).render({ shapes: ["square", "oval", "square", "square", "square", "oval", "oval"] }));
-		$("#frame-container").prepend(frame);		
-		$("#frame-container").selectable();
+		// isotopeを初期化
+		initIsotope();
 
-		var $albumContainer = $("#album-item-container");		
+		// フレームを取得
+		getFrames();
+		
+		// アルバムを取得
+		getAlbums();
+
+		// 友達を取得
+		getFriends();
+});
+
+/**
+ * isotopeの初期化
+ */
+function initIsotope() {
+		var $albumContainer = $("#album-item-container");
+		var $photoContainer = $("#photo-item-container");
+		
 		$albumContainer.isotope({
 				itemSelector: ".item",
 				layoutMode: "fitRows"
 		});
-		var $photoContainer = $("#photo-item-container");		
 		$photoContainer.isotope({
 				itemSelector: ".item",
 				layoutMode: "fitRows"
 		});
+}
 
+/**
+ * フレームリストを取得する
+ */
+function getFrames() {
+		var $frameContainer = $("#frame-container");
+		
+		// フレームリスト表示
+		frames = $(new EJS({
+				url: "ejs/frame.ejs"
+		}).render({ shapes: ["square", "oval"] }));
+
+		// フレームリストを挿入
+		$frameContainer.prepend(frames);
+
+		$frameContainer.selectable();
+}
+
+/**
+ * 友達リストの取得する
+ */
+function getFriends() {
+		var $friendContainer = $("#friend-container");
+
+		// 友達リストを取得
+		$.getJSON("http://localhost:9393/friends.json", function(json){
+				var $friends = $(new EJS({
+						url: "ejs/friend.ejs"
+				}).render({ friends: json }));
+
+				// 友達リストを挿入
+				$friendContainer.append($friends);
+		});
+}
+
+
+/**
+ * アルバムリストを取得する
+ */
+function getAlbums() {
+		var $albumContainer = $("#album-item-container");
+
+		// アルバムリストを取得
 		$.getJSON("http://localhost:9393/albums.json", function(json){
-				var $photo = $(new EJS({
+				var $albums = $(new EJS({
 						url: "ejs/isotope_item.ejs"
 				}).render({ items: json }));
-				$albumContainer.isotope("insert", $photo);
-				$photo.click(function(){
+
+				// isotopeにアルバムリストを挿入
+				$albumContainer.isotope("insert", $albums);
+
+				// クリックされた時の動作を設定
+				$albums.click(function(){
 						if($(this).hasClass("clicked")){
+								// 1回クリックされたアルバムは写真リストを取得しない
 								showPhotos($(this).attr("data-id"));
 						}else{
+								// アルバムIDを使用して写真リストを取得する
 								$(this).addClass("clicked");
 								getPhotos($(this).attr("data-id"));
 						}
 						return false;
 				});
 		});
-});
+}
 
 function showPhotos(id) {
 		var $albumContainer = $("#album-item-container");
