@@ -99,5 +99,7 @@ class DfmApp < Sinatra::Base
   end
 
   post '/create' do
+    content_type :json
+    params[:absence].to_json
   end
 end
