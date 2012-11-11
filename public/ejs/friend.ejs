@@ -1,6 +1,8 @@
 <% for(var i=0; i < friends.length; i ++) { %>
-<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;" onClick="addAbsence('<%= friends[i]['absence'] %>');">
-	<img src="<%= friends[i]['picture'] %>" style="width: 34px; height: 34px; margin-right: 5px;">
-	<span><%= friends[i]['name'] %></span>
+<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;" data-url="<%= friends[i]['absence'] %>">
+	<a href="#">
+		<img src="<%= friends[i]['picture'] %>" style="width: 34px; height: 34px; margin-right: 5px;">
+		<span><%= friends[i]['name'] %></span>
+	</a>
 </div>
 <% } %>

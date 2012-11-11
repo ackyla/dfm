@@ -37,18 +37,27 @@ function getFrames() {
 		var $frameContainer = $("#frame-container");
 		
 		// フレームリスト表示
-		frames = $(new EJS({
+		var $frames = $(new EJS({
 				url: "ejs/frame.ejs"
 		}).render({ shapes: ["square", "oval"] }));
 
 		// フレームリストを挿入
-		$frameContainer.prepend(frames);
+		$frameContainer.prepend($frames);
 
 		$frameContainer.selectable();
+
+		// クリックした時の動作
+		$frames.click(function(){
+				var $absenceImageWrapper = $(".absence-image-wrapper");
+				$absenceImageWrapper.removeClass("square oval")
+				$absenceImageWrapper.addClass($(this).attr("frame-type"));
+
+				return false;
+		});
 }
 
 /**
- * 友達リストの取得する
+ * 友達リストを取得する
  */
 function getFriends() {
 		var $friendContainer = $("#friend-container");
@@ -61,9 +70,28 @@ function getFriends() {
 
 				// 友達リストを挿入
 				$friendContainer.append($friends);
+
+				// クリックした時の動作
+				$friends.click(function(){
+						addAbsence($(this).attr("data-url"));
+
+						return false;
+				});
 		});
 }
 
+/**
+ * アルバムを表示する
+ */
+function showAlbums() {
+		$('#photo-select-wrapper').show();
+		$('#album-item-container').show();
+		$('#album-item-container').isotope('reLayout');
+		$('#photo-item-container').hide();
+		$('.photo-wrapper').hide();
+		
+		return false;
+}
 
 /**
  * アルバムリストを取得する
@@ -95,6 +123,9 @@ function getAlbums() {
 		});
 }
 
+/**
+ * 写真を表示する
+ */
 function showPhotos(id) {
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");
@@ -105,6 +136,9 @@ function showPhotos(id) {
 		$photoContainer.isotope({ filter: ".album-"+id });
 }
 
+/**
+ * 写真を取得する
+ */
 function getPhotos(id) {
 		var $photoSelectWrapper = $("#photo-select-wrapper");
 		var $albumContainer = $("#album-item-container");
@@ -149,20 +183,40 @@ function getPhotos(id) {
 		}
 }
 
+/**
+ * 欠席者を追加する
+ */
 function addAbsence(url) {
+		
 		// 欠席者追加
-		absence = $(new EJS({
+		var $absence = $(new EJS({
         url: "ejs/absence.ejs"
     }).render({ picture: url }));
-		$("#absence-container").prepend(absence);
-		$(".absence-wrapper").draggable({
+		$("#absence-container").prepend($absence);
+
+		// ドラッガブル
+		$absence.draggable({
 				drag: function(){
 						$(this).find("input.position-x").val($(this).css("left"));
 						$(this).find("input.position-y").val($(this).css("top"));
 				}
 		});
+
+		// セレクト(仮)
+		$absence.find(".absence-image-wrapper").click(function(){
+				$(this).toggleClass('selected');
+		});
+
+		// 閉じる
+		$absence.find(".close-button").click(function(){
+				$(this).closest('.absence-wrapper').remove();
+				return false;
+		});
 }
 
+/**
+ * 写真を追加する
+ */
 function addPhoto(source) {
 		$photoWrapper = $("#photo-container .photo-wrapper");
 		

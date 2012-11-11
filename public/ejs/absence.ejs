@@ -1,12 +1,12 @@
 <div class="absence-wrapper" style="position: absolute; top: 5px; left: 5px;">
 	<input class="position-x" type="hidden" name="x[]" />
 	<input class="position-y" type="hidden" name="y[]" />
-	<span class="absence-image-wrapper square" style="background: url(<%= picture %>) no-repeat center center; width: 90px; height: 120px; display: inline-block;" onclick="$(this).toggleClass('selected');">
+	<span class="absence-image-wrapper square" style="background: url(<%= picture %>) no-repeat center center; width: 90px; height: 120px; display: inline-block;">
 		<img src="<%= picture %>" style="width: 100px; height: 120px; opacity: 0;" />
 	</span>
 	<div class="controll-wrapper" style="position: absolute;top: 0px;left: 0px;">
-		<span style="font-size: 20px;font-weight: bold;background: whitesmoke;border-radius: 10px;width: 20px;height: 20px;position: absolute;text-align: center;line-height: 15px;">
-			<a href="#" style="text-decoration: none;" onclick="$(this).closest('.absence-wrapper').remove(); return false;">×</a>
+		<span class="close-button" style="font-size: 20px;font-weight: bold;background: whitesmoke;border-radius: 10px;width: 20px;height: 20px;position: absolute;text-align: center;line-height: 15px;">
+			<a href="#" style="text-decoration: none;">×</a>
 		</span>
 	</div>
 </div>

@@ -1,7 +1,9 @@
 <% for(var i = 0; i < shapes.length; i ++) { %>
-<div class="frame-wrapper" style="display: inline-block; margin-right: 5px;">
-	<span class="<%= shapes[i] %>" style="background: url(img/avatar.png) no-repeat center center; width: 90px; height: 120px; display: inline-block;" onclick="$('.absence-image-wrapper').removeClass('square oval').addClass('<%= shapes[i] %>');">
-		<img src="img/avatar.png" class="square" style="width: 100px; height: 120px; opacity: 0;">
-	</span>
+<div class="frame-wrapper" frame-type="<%= shapes[i] %>" style="display: inline-block; margin-right: 5px;">
+	<a href="#">
+		<span class="<%= shapes[i] %>" style="background: url(img/avatar.png) no-repeat center center; width: 90px; height: 120px; display: inline-block;">
+			<img src="img/avatar.png" class="square" style="width: 100px; height: 120px; opacity: 0;">
+		</span>
+	</a>
 </div>
 <% } %>
