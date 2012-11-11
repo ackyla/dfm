@@ -84,6 +84,7 @@ function getFriends() {
  * アルバムを表示する
  */
 function showAlbums() {
+		$("#loading-photos").hide();
 		$('#photo-select-wrapper').show();
 		$('#album-item-container').show();
 		$('#album-item-container').isotope('reLayout');
@@ -99,12 +100,18 @@ function showAlbums() {
 function getAlbums() {
 		var $albumContainer = $("#album-item-container");
 
+		// ローディングアニメーション表示
+		$("#loading-albums").show();
+
 		// アルバムリストを取得
 		$.getJSON("http://localhost:9393/albums.json", function(json){
 				var $albums = $(new EJS({
 						url: "ejs/isotope_item.ejs"
 				}).render({ items: json }));
 
+				// ローディングアニメーション消去
+				$("#loading-albums").hide();
+				
 				// isotopeにアルバムリストを挿入
 				$albumContainer.isotope("insert", $albums);
 
@@ -147,6 +154,9 @@ function getPhotos(id) {
 		$albumContainer.hide();
 		$photoContainer.show();
 		$photoContainer.isotope({ filter: ":not(.item)" });
+
+		// ローディングアニメーション表示
+		$("#loading-photos").show();
 		
 		if(id == "0"){
 				$.getJSON("http://localhost:9393/tagged_photos.json", function(json){
@@ -156,6 +166,10 @@ function getPhotos(id) {
 						$photo.each(function(){
 								$(this).addClass("album-"+id);
 						});
+
+						// ローディングアニメーション消去
+						$("#loading-photos").hide();
+						
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
@@ -172,6 +186,10 @@ function getPhotos(id) {
 						$photo.each(function(){
 								$(this).addClass("album-"+id);
 						});
+
+						// ローディングアニメーション消去
+						$("#loading-photos").hide();
+						
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
