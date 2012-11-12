@@ -2,6 +2,7 @@
 require 'sinatra/base'
 require 'fb_graph'
 require 'json'
+require 'RMagick'
 
 class DfmApp < Sinatra::Base
 
@@ -45,7 +46,7 @@ class DfmApp < Sinatra::Base
       {
         "name" => friend.name, 
         "picture" => friend.picture({"&width=" => "34", "&height=" => "34"}),
-        "absence" => friend.picture({"&width=" => "100", "&height=" => "120"})
+        "absence" => friend.fetch({"fields" => "picture.width(100).height(120)"}).raw_attributes["picture"]["data"]["url"]
       }
     }.to_json
   end
@@ -99,7 +100,12 @@ class DfmApp < Sinatra::Base
   end
 
   post '/create' do
-    content_type :json
-    params.to_json
+    photo = Magick::ImageList.new(params[:photo])
+    absences = params[:absence]
+    for i in 0..(absences["x"].size-1)
+      absence = Magick::ImageList.new(absences["src"][i])
+      photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
+    end
+    photo.write("aaa.jpg")
   end
 end
