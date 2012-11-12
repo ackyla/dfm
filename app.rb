@@ -100,6 +100,6 @@ class DfmApp < Sinatra::Base
 
   post '/create' do
     content_type :json
-    params[:absence].to_json
+    params.to_json
   end
 end

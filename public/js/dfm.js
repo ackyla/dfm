@@ -89,7 +89,7 @@ function showAlbums() {
 		$('#album-item-container').show();
 		$('#album-item-container').isotope('reLayout');
 		$('#photo-item-container').hide();
-		$('.photo-wrapper').hide();
+		$('#photo-wrapper').hide();
 		
 		return false;
 }
@@ -236,12 +236,12 @@ function addAbsence(url) {
  * 写真を追加する
  */
 function addPhoto(source) {
-		$photoWrapper = $("#photo-container .photo-wrapper");
+		var $photoWrapper = $("#photo-wrapper");
 		
-		photo = $(new EJS({
+		var $photo = $(new EJS({
 				url: "ejs/photo.ejs"
 		}).render({ source: source }));
 		$photoWrapper.show();
-		$("#photo-container .photo-wrapper .photo").remove();
-		$("#photo-container .photo-wrapper").prepend(photo);
+		$("#photo-inner").remove();
+		$photoWrapper.prepend($photo);
 }
