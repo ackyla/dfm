@@ -38,15 +38,23 @@ class DfmApp < Sinatra::Base
     redirect '/edit'
   end
   
+  get '/absence.json' do
+    id = params[:id]
+    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
+    picture = {"source" => user.raw_attributes["picture"]["data"]["url"]}
+    content_type :json
+    picture.to_json
+  end
+
   get '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
     content_type :json
     friends.to_a.map{|friend|
       {
+        "id" => friend.identifier,
         "name" => friend.name, 
         "picture" => friend.picture({"&width=" => "34", "&height=" => "34"}),
-        "absence" => friend.fetch({"fields" => "picture.width(100).height(120)"}).raw_attributes["picture"]["data"]["url"]
       }
     }.to_json
   end

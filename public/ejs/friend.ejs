@@ -1,5 +1,5 @@
 <% for(var i=0; i < friends.length; i ++) { %>
-<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;" data-url="<%= friends[i]['absence'] %>">
+<div class="friend-wrapper" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;" id="<%= friends[i]['id'] %>">
 	<a href="#">
 		<img src="<%= friends[i]['picture'] %>" style="width: 34px; height: 34px; margin-right: 5px;">
 		<span><%= friends[i]['name'] %></span>

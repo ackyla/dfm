@@ -73,7 +73,7 @@ function getFriends() {
 
 				// クリックした時の動作
 				$friends.click(function(){
-						addAbsence($(this).attr("data-url"));
+						addAbsence($(this).attr("id"));
 
 						return false;
 				});
@@ -204,31 +204,33 @@ function getPhotos(id) {
 /**
  * 欠席者を追加する
  */
-function addAbsence(url) {
-		
-		// 欠席者追加
-		var $absence = $(new EJS({
-        url: "ejs/absence.ejs"
-    }).render({ picture: url }));
-		$("#absence-container").prepend($absence);
+function addAbsence(id) {
+		// 欠席者の写真を取得
+		$.getJSON("http://localhost:9393/absence.json?id="+id, function(json){
+				// 欠席者追加
+				var $absence = $(new EJS({
+						url: "ejs/absence.ejs"
+				}).render({ picture: json["source"] }));
+				$("#absence-container").prepend($absence);
 
-		// ドラッガブル
-		$absence.draggable({
-				drag: function(){
-						$(this).find("input.position-x").val($(this).css("left"));
-						$(this).find("input.position-y").val($(this).css("top"));
-				}
-		});
+				// ドラッガブル
+				$absence.draggable({
+						drag: function(){
+								$(this).find("input.position-x").val($(this).css("left"));
+								$(this).find("input.position-y").val($(this).css("top"));
+						}
+				});
 
-		// セレクト(仮)
-		$absence.find(".absence-image-wrapper").click(function(){
-				$(this).toggleClass('selected');
-		});
+				// セレクト(仮)
+				$absence.find(".absence-image-wrapper").click(function(){
+						$(this).toggleClass('selected');
+				});
 
-		// 閉じる
-		$absence.find(".close-button").click(function(){
-				$(this).closest('.absence-wrapper').remove();
-				return false;
+				// 閉じる
+				$absence.find(".close-button").click(function(){
+						$(this).closest('.absence-wrapper').remove();
+						return false;
+				});
 		});
 }
 
