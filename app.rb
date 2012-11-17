@@ -3,6 +3,7 @@ require 'sinatra/base'
 require 'fb_graph'
 require 'json'
 require 'RMagick'
+require 'base64'
 
 class DfmApp < Sinatra::Base
 
@@ -114,11 +115,19 @@ class DfmApp < Sinatra::Base
       absence = Magick::ImageList.new(absences["src"][i])
       photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
     end
+
     temp = Tempfile::new("temp_", "/Users/ackyla/Repositories/Projects/dfm")
     temp.write(photo.to_blob)
-    file = File::new(temp.path)
-    album = FbGraph::Album.new("356382514458483", :access_token => session[:token])
-    album.photo!(:source => file)
-    temp.close
+
+    json = {
+      "data" => "data:image/jpg;base64,#{Base64.b64encode(photo.to_blob)}",
+      "path" => temp.path
+    }
+    content_type :json
+    json.to_json
+#    file = File::new(temp.path)
+#    album = FbGraph::Album.new("356382514458483", :access_token => session[:token])
+#    album.photo!(:source => file)
+#    temp.close
   end
 end

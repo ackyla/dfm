@@ -247,3 +247,23 @@ function addPhoto(source) {
 		$("#photo-inner").remove();
 		$photoWrapper.prepend($photo);
 }
+/**
+ * 写真を作る
+ */
+function createPhoto(){
+		var photo = $("#photo-container [name='photo']").val();
+		var src = $("#photo-container [name='absence[src][]']").map(function(){ return $(this).val(); }).toArray();
+		var x = $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray();
+		var y = $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray();
+
+		var absence = {src: src, x: x, y: y};
+		
+		$.post("http://localhost:9393/create",
+					 {
+							 photo: photo,
+							 absence: absence
+					 },
+					 function(json){
+							 addPhoto(json["data"]);
+					 });
+}
