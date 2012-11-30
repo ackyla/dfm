@@ -264,6 +264,7 @@ function createPhoto(){
 							 absence: absence
 					 },
 					 function(json){
-							 addPhoto(json["data"]);
-					 });
+							 addPhoto(json["path"]);
+					 }
+		);
 }

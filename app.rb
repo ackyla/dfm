@@ -116,12 +116,18 @@ class DfmApp < Sinatra::Base
       photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
     end
 
-    temp = Tempfile::new("temp_", "/Users/ackyla/Repositories/Projects/dfm")
-    temp.write(photo.to_blob)
+    # ディレクトリが無かったら作る
+    FileUtils.mkdir_p("./public/temp") unless File.exist?("./public/temp")
+
+    filename = File.basename(params[:photo])
+    photo.write("./public/temp/#{filename}"){
+      self.quality = 95
+    }
+
+    session[:path] = "./public/temp/#{filename}"
 
     json = {
-      "data" => "data:image/jpg;base64,#{Base64.b64encode(photo.to_blob)}",
-      "path" => temp.path
+      "path" => "temp/#{filename}"
     }
     content_type :json
     json.to_json
@@ -129,5 +135,17 @@ class DfmApp < Sinatra::Base
 #    album = FbGraph::Album.new("356382514458483", :access_token => session[:token])
 #    album.photo!(:source => file)
 #    temp.close
+  end
+
+  post '/upload' do
+    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+    user.photo!(:source => File.new(session[:path]), :message => "--------------------------------
+休んだ人も写真に入れてあげましょう。
+Don't forget me!!!
+・http://don.t-forget.me
+--------------------------------")
+
+    # ファイルを削除
+    File.delete(session[:path]) if File.exist?(session[:path])
   end
 end
