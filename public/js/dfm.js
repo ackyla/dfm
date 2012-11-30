@@ -264,7 +264,7 @@ function createPhoto(){
 							 absence: absence
 					 },
 					 function(json){
-							 showResult(json["path"]);
+							 showResult(json);
 					 }
 		);
 }
@@ -272,11 +272,11 @@ function createPhoto(){
 /**
  * 生成結果を表示する
  */
-function showResult(source) {
+function showResult(json) {
 		var $modalContainer = $("#modal-container");		
 		var $result = $(new EJS({
 				url: "ejs/result.ejs"
-		}).render({ source: source }));
+		}).render({ source: json['path'], tags: json['tags'] }));
 		
 		$modalContainer.empty();
 		$modalContainer.prepend($result);

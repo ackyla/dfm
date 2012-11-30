@@ -27,7 +27,7 @@ class DfmApp < Sinatra::Base
 
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
-    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])
+    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])#, :photo_upload])
   end
 
   get '/auth/callback' do
@@ -111,10 +111,14 @@ class DfmApp < Sinatra::Base
   post '/create' do
     photo = Magick::ImageList.new(params[:photo])
     absences = params[:absence]
+    tags = Array::new
     for i in 0..(absences["x"].size-1)
       absence = Magick::ImageList.new(absences["src"][i])
       photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
+      tags.append({"name" => i, "x" => absences["x"][i].to_i, "y" => absences["y"][i].to_i})
     end
+
+    
 
     # ディレクトリが無かったら作る
     FileUtils.mkdir_p("./public/temp") unless File.exist?("./public/temp")
@@ -127,7 +131,8 @@ class DfmApp < Sinatra::Base
     session[:path] = "./public/temp/#{filename}"
 
     json = {
-      "path" => "temp/#{filename}"
+      "path" => "temp/#{filename}",
+      "tags" => tags
     }
     content_type :json
     json.to_json
@@ -138,15 +143,19 @@ class DfmApp < Sinatra::Base
   end
 
   post '/upload' do
-    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    user.photo!(:source => File.new(session[:path]), :message => "#{params[:message]}
---------------------------------
-休んだ人も写真に入れてあげましょう。
-Don't forget me!!!
-・http://don.t-forget.me
---------------------------------")
+    photo = Magick::ImageList.new(session[:path])
+    tags = Array::new
+    for i in 0..(params[:name].size-1)
+      tags.append(FbGraph::Tag.new(:name => "tag-#{params[:name][i]}", :x => params[:x][i].to_f / photo.columns * 100, :y => params[:y][i].to_f / photo.rows * 100))
+    end
 
+    message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
+
+    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+    user.photo!(:source => File.new(session[:path]), :message => message, :tags => tags)
+    
     # ファイルを削除
     File.delete(session[:path]) if File.exist?(session[:path])
+
   end
 end
