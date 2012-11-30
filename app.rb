@@ -139,7 +139,8 @@ class DfmApp < Sinatra::Base
 
   post '/upload' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    user.photo!(:source => File.new(session[:path]), :message => "--------------------------------
+    user.photo!(:source => File.new(session[:path]), :message => "#{params[:message]}
+--------------------------------
 休んだ人も写真に入れてあげましょう。
 Don't forget me!!!
 ・http://don.t-forget.me

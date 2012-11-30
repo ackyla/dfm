@@ -264,7 +264,21 @@ function createPhoto(){
 							 absence: absence
 					 },
 					 function(json){
-							 addPhoto(json["path"]);
+							 showResult(json["path"]);
 					 }
 		);
+}
+
+/**
+ * 生成結果を表示する
+ */
+function showResult(source) {
+		var $modalContainer = $("#modal-container");		
+		var $result = $(new EJS({
+				url: "ejs/result.ejs"
+		}).render({ source: source }));
+		
+		$modalContainer.empty();
+		$modalContainer.prepend($result);
+		$result.modal("show");
 }

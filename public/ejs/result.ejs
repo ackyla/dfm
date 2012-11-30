@@ -1,0 +1,19 @@
+<div class="modal hide fade">
+	<form method="post" action="/upload">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h3>Facebookに投稿する</h3>
+		</div>
+		<div class="modal-body">
+			<p onclick="$(this).hide(); $('#message').show(); return false;" style="margin: 10px 0;"><a href="#">コメントを書く</a></p>
+			<textarea id="message" name="message" style="display: none; margin: 10px auto 10px; width: 90%; height: 120px;"></textarea>
+			<div id="result-container" style="background: whitesmoke;">
+				<img src="<%= source %>" class="result" style="display: block; margin: 5px auto;"/>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<a href="#" class="btn" data-dismiss="modal">キャンセル</a>
+			<input type="submit" class="btn btn-primary" value="投稿する">
+		</div>
+	</form>
+</div>
