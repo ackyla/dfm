@@ -17,9 +17,14 @@ $(function(){
  * isotopeの初期化
  */
 function initIsotope() {
+		var $friendContainer = $("#friend-item-container");
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");
-		
+
+		$friendContainer.isotope({
+				itemSelector: ".item",
+				layoutMode: "straightDown"
+		});
 		$albumContainer.isotope({
 				itemSelector: ".item",
 				layoutMode: "fitRows"
@@ -60,7 +65,7 @@ function getFrames() {
  * 友達リストを取得する
  */
 function getFriends() {
-		var $friendContainer = $("#friend-container");
+		var $friendContainer = $("#friend-item-container");
 
 		// 友達リストを取得
 		$.getJSON("http://localhost:9393/friends.json", function(json){
@@ -68,12 +73,12 @@ function getFriends() {
 						url: "ejs/friend.ejs"
 				}).render({ friends: json }));
 
-				// 友達リストを挿入
-				$friendContainer.append($friends);
+				// isotopeに友達リストを挿入
+				$friendContainer.isotope("insert", $friends);
 
 				// クリックした時の動作
 				$friends.click(function(){
-						addAbsence($(this).attr("id"));
+						addAbsence($(this).attr("data-id"));
 
 						return false;
 				});
