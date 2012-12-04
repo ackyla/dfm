@@ -76,12 +76,52 @@ function getFriends() {
 				// isotopeに友達リストを挿入
 				$friendContainer.isotope("insert", $friends);
 
+				initFriendsOrder();
+				
 				// クリックした時の動作
 				$friends.click(function(){
 						addAbsence($(this).attr("data-id"));
-
+						$(this).attr("data-closely", parseInt($(this).attr("data-closely"))-1);
+						sortFriends();
 						return false;
 				});
+		});
+}
+
+/**
+ * 共通の友達ソートを初期化する
+ */
+function initFriendsOrder() {
+		var $friendContainer = $("#friend-item-container");
+		var $friends = $friendContainer.find(".item");
+
+		$friends.each(function(){
+				$(this).attr("data-closely", 9999);
+		});
+
+		sortFriends();
+}
+
+/**
+ * 友達リストを共通の友達が多い順にソートする
+ */
+function sortFriends() {
+		var $friendContainer = $("#friend-item-container");
+		var $friends = $friendContainer.find(".item");
+
+		// ソートデータを更新する
+		$friendContainer.isotope({
+				getSortData : {
+						closely : function($elem){
+								return $elem.attr("data-closely");
+						}
+				}
+		});
+		$friendContainer.isotope("updateSortData", $friends);
+		
+		$friendContainer.isotope({
+				sortBy : "closely",
+				sortAscending : true
 		});
 }
 
