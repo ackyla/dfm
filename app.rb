@@ -104,6 +104,26 @@ class DfmApp < Sinatra::Base
     photos.to_json
   end
 
+  get '/closely.json' do
+    absences = params[:absences].nil? ? Array::new : params[:absences]
+    id = params[:id]
+    user = FbGraph::User.new(id, :access_token => session[:token]).fetch
+
+    closely = Hash::new
+    absences.each{|absence|
+      friends = user.mutual_friends(absence)
+      friends.each{|friend|
+        if closely["#{friend.identifier}"].nil?
+          closely["#{friend.identifier}"] = 1
+        else
+          closely["#{friend.identifier}"] += 1
+        end
+      }
+    }
+    content_type :json
+    params[:absences].to_json
+  end
+  
   get '/edit' do
     erb :edit
   end
