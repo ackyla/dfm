@@ -80,9 +80,9 @@ function getFriends() {
 				
 				// クリックした時の動作
 				$friends.click(function(){
-						addAbsence($(this).attr("data-id"));
-						$(this).attr("data-closely", parseInt($(this).attr("data-closely"))-1);
-						sortFriends();
+						$id = $(this).attr("data-id");
+						addAbsence($id);
+						getMutualFriends($id);
 						return false;
 				});
 		});
@@ -123,6 +123,39 @@ function sortFriends() {
 				sortBy : "closely",
 				sortAscending : true
 		});
+}
+
+/**
+ * 共通の友達を取得する
+ */
+function getMutualFriends($id) {
+		var $absences = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		
+		$.ajax(
+				{
+						url: "closely.json",
+						type: "POST",
+						data: {
+								id: $id,
+								absences: $absences
+						},
+						success: function(json){
+								$.each(json, function(key, val){
+										changeClosely(key, val);
+								});
+								sortFriends();
+						},
+						dataType: "json"
+				}
+		);
+}
+
+/**
+ * 繋がりの値を更新する
+ */
+function changeClosely(id, closely) {
+		$friend = $("#friend-item-container [data-id="+id+"]");
+		$friend.attr("data-closely", parseInt($friend.attr("data-closely"))-closely);
 }
 
 /**
@@ -255,7 +288,7 @@ function addAbsence(id) {
 				// 欠席者追加
 				var $absence = $(new EJS({
 						url: "ejs/absence.ejs"
-				}).render({ picture: json["source"] }));
+				}).render({ picture: json["source"], id: id }));
 				$("#absence-container").prepend($absence);
 
 				// ドラッガブル
