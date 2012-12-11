@@ -22,7 +22,13 @@ class DfmApp < Sinatra::Base
   end
 
   get '/' do
+    @page_name = ""
     erb :index
+  end
+
+  get '/edit' do
+    @page_name = "写真作成 | "
+    erb :edit
   end
 
   get '/auth' do
@@ -122,10 +128,6 @@ class DfmApp < Sinatra::Base
     }
     content_type :json
     closely.to_json
-  end
-  
-  get '/edit' do
-    erb :edit
   end
 
   post '/create' do

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title><%= @page_name %>Don't forget me!!! | その場にいなかった人も写真に入れてあげましょう</title>
+		<!-- CSS -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/shape.css" rel="stylesheet">
+		<!-- /CSS -->
+		<!-- JS -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/jquery.isotope.min.js"></script>
+		<script type="text/javascript" src="js/ejs.js"></script>
+		<script type="text/javascript" src="js/dfm.js"></script>
+		<!-- /JS -->
+		<!--[if lt IE 9]>
+				<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+				<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+		<![endif]-->
+	</head>
+	<body id="top">
+		<div class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<a class="brand" href="/">Don't forget me!!!</a>
+					<div class="nav-collapse">
+						<ul class="nav">
+							<li class="active"><a href="/">Top</a></li>
+							<li><a href="/edit">Edit</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="main-container" style="width: 1346px; margin: 100px auto">
+			<%= yield %>
+		</div>
+	</body>
+</html>
