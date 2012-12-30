@@ -4,6 +4,7 @@ require 'fb_graph'
 require 'json'
 require 'RMagick'
 require 'base64'
+require 'SecureRandom'
 
 class DfmApp < Sinatra::Base
 
@@ -68,6 +69,10 @@ class DfmApp < Sinatra::Base
     begin
       access_token = client.access_token! :client_auth_body
       session[:token] = access_token.access_token
+      #画像生成用のディレクトリを生成
+      session_id = session[:session_id]
+      path = "./public/files/#{session_id}"
+      FileUtils.mkdir_p(path) unless FileTest.exist?(path)
     rescue
       redirect '/'
     end
@@ -84,17 +89,22 @@ class DfmApp < Sinatra::Base
     mask = Magick::ImageList.new("./masks/mask_oval.png")
     mask.alpha = Magick::ActivateAlphaChannel
     masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
-    masked.background_color = "black"
-    shadow = masked.shadow(5, 5, 3, 0.4)
-    shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
+    #    masked.background_color = "black"
+    #   shadow = masked.shadow(5, 5, 3, 0.4)
+    #   shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
+    
+    session_id = session[:session_id]
+    filename = SecureRandom.hex(16)
+    url = "/files/#{session_id}/#{filename}.png"
+    dir = "./public#{url}"
+    masked.write(dir)
 
-    shadowed.write("./public/img/aaa.png")
-
-    picture = {"source" => "/img/aaa.png"}
+    picture = {"source" => url}
     content_type :json
     picture.to_json
   end
 
+  #友達リストを取得
   get '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
@@ -108,6 +118,7 @@ class DfmApp < Sinatra::Base
     }.to_json
   end
 
+  #アルバムリストを取得
   get '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
@@ -124,6 +135,7 @@ class DfmApp < Sinatra::Base
     albums.to_json
   end
 
+  #自分のタグが付いた写真を取得
   get '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     photos = user.photos({"type" => "tagged"})
@@ -138,6 +150,7 @@ class DfmApp < Sinatra::Base
     photos.to_json
   end
 
+  #写真を取得
   get '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
