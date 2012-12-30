@@ -186,7 +186,7 @@ class DfmApp < Sinatra::Base
   end
 
   post '/create' do
-    photo = Magick::ImageList.new(params[:photo]).resize_to_fit(740, 10000)
+    photo = Magick::ImageList.new(params[:photo]).resize_to_fit(740, 100000)
     absences = params[:absence]
     tags = Array::new
     for i in 0..(absences["x"].size-1)
