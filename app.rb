@@ -11,7 +11,12 @@ class DfmApp < Sinatra::Base
     APP_KEY, APP_SECRET = File.open(".key").read.split
   end
 
-  use Rack::Session::Cookie
+  use Rack::Session::Cookie,
+  #:key => 'dfm.session',
+  #:domain => 't-forget.me',
+  #:path => '/',
+  :expire_after => 3600,
+  :secret => 'hogehoge'
 
   error do
     "sorry"
@@ -26,29 +31,66 @@ class DfmApp < Sinatra::Base
     erb :index
   end
 
+  get '/session' do
+    session[:session_id]
+    #"#{session[:token]}\n#{session.empty?}"
+  end
+
   get '/edit' do
+    # セッションのチェック
+    if session[:token].nil?
+      redirect '/auth'
+    end
+
     @page_name = "写真作成 | "
     erb :edit
   end
-
+  
+  #facebook認証
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
-    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])#, :photo_upload])
+    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos, :photo_upload])
   end
 
+  #facebook認証のコールバック
   get '/auth/callback' do
+    #facebookからのcodeが無かったらトップに戻る
+    if params[:code].nil?
+      redirect '/'
+    end
+
+    #codeをセット
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
     client = auth.client
     client.authorization_code = params[:code]
-    access_token = client.access_token! :client_auth_body
-    session[:token] = access_token.access_token
+    
+    #アクセストークンを取得
+    begin
+      access_token = client.access_token! :client_auth_body
+      session[:token] = access_token.access_token
+    rescue
+      redirect '/'
+    end
+
     redirect '/edit'
   end
   
   get '/absence.json' do
     id = params[:id]
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
-    picture = {"source" => user.raw_attributes["picture"]["data"]["url"]}
+
+    url = user.raw_attributes["picture"]["data"]["url"]
+    absence = Magick::ImageList.new(url)
+    mask = Magick::ImageList.new("./masks/mask_oval.png")
+    mask.alpha = Magick::ActivateAlphaChannel
+    masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
+    masked.background_color = "black"
+    shadow = masked.shadow(5, 5, 3, 0.4)
+    shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
+
+    shadowed.write("./public/img/aaa.png")
+
+    picture = {"source" => "/img/aaa.png"}
     content_type :json
     picture.to_json
   end
