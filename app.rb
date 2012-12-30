@@ -190,25 +190,27 @@ class DfmApp < Sinatra::Base
     absences = params[:absence]
     tags = Array::new
     for i in 0..(absences["x"].size-1)
-      absence = Magick::ImageList.new(absences["src"][i])
+      absence = Magick::ImageList.new("./public#{absences["src"][i]}")
       photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
       tags.append({"name" => i, "x" => absences["x"][i].to_i, "y" => absences["y"][i].to_i})
     end
-
     
+    session_id = session[:session_id]
+    filename = SecureRandom.hex(16)
+    url = "/files/#{session_id}/photo_#{filename}.jpg"
+    dir = "./public#{url}"
 
     # ディレクトリが無かったら作る
-    FileUtils.mkdir_p("./public/temp") unless File.exist?("./public/temp")
+    FileUtils.mkdir_p("./public/files/#{session_id}") unless FileTest.exist?("./public/files/#{session_id}")
 
-    filename = File.basename(params[:photo])
-    photo.write("./public/temp/#{filename}"){
+    photo.write(dir){
       self.quality = 95
     }
 
-    session[:path] = "./public/temp/#{filename}"
+    session[:path] = dir
 
     json = {
-      "path" => "temp/#{filename}",
+      "path" => url,
       "tags" => tags
     }
     content_type :json
