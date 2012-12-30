@@ -4,7 +4,7 @@ $(function(){
 		initIsotope();
 
 		// フレームを取得
-		getFrames();
+		//getFrames();
 		
 		// アルバムを取得
 		getAlbums();
@@ -37,7 +37,7 @@ function initIsotope() {
 
 /**
  * フレームリストを取得する
- */
+ 
 function getFrames() {
 		var $frameContainer = $("#frame-container");
 		
@@ -59,7 +59,7 @@ function getFrames() {
 
 				return false;
 		});
-}
+}*/
 
 /**
  * 友達リストを取得する
