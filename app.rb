@@ -127,10 +127,11 @@ class DfmApp < Sinatra::Base
       {
         "id" => album.identifier,
         "name" => album.name,
-        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source
+        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source,
+        "tags" => Array::new
       }
     }
-    albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged})
+    albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
     content_type :json
     albums.to_json
   end
@@ -143,7 +144,12 @@ class DfmApp < Sinatra::Base
       {
         "id" => photo.identifier,
         "name" => photo.name.nil? ? "無題" : photo.name,
-        "source" => photo.source
+        "source" => photo.source,
+        "tags" => photo.tags.to_a.map{|tag|
+          {
+            "id" => tag.user.identifier
+          }
+        }
       }
     }
     content_type :json
@@ -158,7 +164,12 @@ class DfmApp < Sinatra::Base
       {
         "id" => photo.identifier,
         "name" => photo.name.nil? ? "無題" : photo.name,
-        "source" => photo.source
+        "source" => photo.source,
+        "tags" => photo.tags.to_a.map{|tag|
+          {
+            "id" => tag.user.identifier
+          }
+        }
       }
     }
     content_type :json
@@ -166,13 +177,29 @@ class DfmApp < Sinatra::Base
   end
 
   post '/closely.json' do
+    #既に追加されている欠席者
     absences = params[:absences].nil? ? Array::new : params[:absences]
+    #タグ付けされたユーザのID
+    tags = params[:tags].nil? ? Array::new : params[:tags]
+    #追加する欠席者のID
     id = params[:id]
+
+    #追加する欠席者を取得
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch
 
     closely = Hash::new
     absences.each{|absence|
       friends = user.mutual_friends(absence)
+      friends.each{|friend|
+        if closely["#{friend.identifier}"].nil?
+          closely["#{friend.identifier}"] = 1
+        else
+          closely["#{friend.identifier}"] += 1
+        end
+      }
+    }
+    tags.each{|tag|
+      friends = user.mutual_friends(tag)
       friends.each{|friend|
         if closely["#{friend.identifier}"].nil?
           closely["#{friend.identifier}"] = 1

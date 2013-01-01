@@ -80,9 +80,9 @@ function getFriends() {
 				
 				// クリックした時の動作
 				$friends.click(function(){
-						$id = $(this).attr("data-id");
-						addAbsence($id);
-						getMutualFriends($id);
+						var id = $(this).attr("data-id");
+						addAbsence(id);
+						getMutualFriends(id);
 						return false;
 				});
 		});
@@ -128,16 +128,18 @@ function sortFriends() {
 /**
  * 共通の友達を取得する
  */
-function getMutualFriends($id) {
+function getMutualFriends(id) {
 		var $absences = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var $tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
 		
 		$.ajax(
 				{
 						url: "closely.json",
 						type: "POST",
 						data: {
-								id: $id,
-								absences: $absences
+								id: id,
+								absences: $absences,
+								tags: $tags
 						},
 						success: function(json){
 								$.each(json, function(key, val){
@@ -251,7 +253,7 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
-								addPhoto($(this).attr("data-source"));
+								addPhoto($(this).attr("data-source"), $(this).find("[name='tags[]']").map(function(){ return $(this).val(); }));
 								$photoSelectWrapper.hide()
 								return false;
 						});
@@ -271,7 +273,7 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
-								addPhoto($(this).attr("data-source"));
+								addPhoto($(this).attr("data-source"), $(this).find("[name='tags[]']").map(function(){ return $(this).val(); }));
 								$photoSelectWrapper.hide()
 								return false;
 						});
@@ -315,12 +317,12 @@ function addAbsence(id) {
 /**
  * 写真を追加する
  */
-function addPhoto(source) {
+function addPhoto(source, tags) {
 		var $photoWrapper = $("#photo-wrapper");
 		
 		var $photo = $(new EJS({
 				url: "ejs/photo.ejs"
-		}).render({ source: source }));
+		}).render({ source: source, tags: tags }));
 		$photoWrapper.show();
 		$("#photo-inner").remove();
 		$photoWrapper.prepend($photo);

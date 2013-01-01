@@ -1,5 +1,8 @@
 <% for(var i=0; i < items.length; i ++) { %>
 <div data-id="<%= items[i]['id'] %>" data-source="<%= items[i]['source'] %>" class="item" style="margin: 10px;">
+	<% for(var j=0; j < items[i]['tags'].length; j ++) { %>
+	<input type="hidden" name="tags[]" value="<%= items[i]['tags'][j]['id'] %>" />
+	<% } %>
 	<a href="#">
 		<div style="background: url(<%= items[i]['source'] %>) no-repeat center center; width: 200px; height: 200px; background-size: cover; position: relative">
 			<div style="background: rgba(0,0,0,.6); padding: 10px; position: absolute; bottom: 0px;">
