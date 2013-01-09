@@ -76,11 +76,16 @@ function getFriends() {
 				// isotopeに友達リストを挿入
 				$friendContainer.isotope("insert", $friends);
 
+				// フィルター
+				$friendContainer.isotope({ filter: '.active' });
+				
 				initFriendsOrder();
 				
 				// クリックした時の動作
 				$friends.click(function(){
 						var id = $(this).attr("data-id");
+						// フィルター
+						$friendContainer.isotope({ filter: '.active' });
 						addAbsence(id);
 						getMutualFriends(id);
 						return false;
@@ -100,6 +105,38 @@ function initFriendsOrder() {
 		});
 
 		sortFriends();
+}
+
+/**
+ * 共通の友達ソートをリセットする
+ */
+function resetFriendsOrder() {
+		initFriendsOrder();
+		
+		var tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+		for(i = 0; i < tags.length; i ++){
+				var tag = tags[i];
+				var remain = tags.slice(undefined, i).concat(tags.slice(i+1, undefined));
+
+				$.ajax(
+						{
+								url: "closely.json",
+								type: "POST",
+								data: {
+										id: tag,
+										absences: new Array(),
+										tags: remain
+								},
+								success: function(json){
+										$.each(json, function(key, val){
+												changeClosely(key, val);
+										});
+										sortFriends();
+								},
+								dataType: "json"
+						}
+				);
+		}
 }
 
 /**
@@ -129,8 +166,8 @@ function sortFriends() {
  * 共通の友達を取得する
  */
 function getMutualFriends(id) {
-		var $absences = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
-		var $tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+		var absences = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
 		
 		$.ajax(
 				{
@@ -138,8 +175,8 @@ function getMutualFriends(id) {
 						type: "POST",
 						data: {
 								id: id,
-								absences: $absences,
-								tags: $tags
+								absences: absences,
+								tags: tags
 						},
 						success: function(json){
 								$.each(json, function(key, val){
@@ -326,6 +363,8 @@ function addPhoto(source, tags) {
 		$photoWrapper.show();
 		$("#photo-inner").remove();
 		$photoWrapper.prepend($photo);
+
+		resetFriendsOrder();
 }
 /**
  * 写真を作る
