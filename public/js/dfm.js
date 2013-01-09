@@ -75,9 +75,6 @@ function getFriends() {
 
 				// isotopeに友達リストを挿入
 				$friendContainer.isotope("insert", $friends);
-
-				// フィルター
-				$friendContainer.isotope({ filter: '.active' });
 				
 				initFriendsOrder();
 				
@@ -85,6 +82,7 @@ function getFriends() {
 				$friends.click(function(){
 						var id = $(this).attr("data-id");
 						// フィルター
+						$(this).removeClass("active");
 						$friendContainer.isotope({ filter: '.active' });
 						addAbsence(id);
 						getMutualFriends(id);

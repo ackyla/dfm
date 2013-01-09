@@ -84,24 +84,30 @@ class DfmApp < Sinatra::Base
     id = params[:id]
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
 
-    url = user.raw_attributes["picture"]["data"]["url"]
-    absence = Magick::ImageList.new(url)
-    mask = Magick::ImageList.new("./masks/mask_oval.png")
-    mask.alpha = Magick::ActivateAlphaChannel
-    masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
+    begin
+      url = user.raw_attributes["picture"]["data"]["url"]
+      absence = Magick::ImageList.new(url)
+      mask = Magick::ImageList.new("./masks/mask_oval.png")
+      mask.alpha = Magick::ActivateAlphaChannel
+      masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
+
     #    masked.background_color = "black"
     #   shadow = masked.shadow(5, 5, 3, 0.4)
     #   shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
     
-    session_id = session[:session_id]
-    filename = SecureRandom.hex(16)
-    url = "/files/#{session_id}/#{filename}.png"
-    dir = "./public#{url}"
-    masked.write(dir)
-
-    picture = {"source" => url}
-    content_type :json
-    picture.to_json
+      session_id = session[:session_id]
+      filename = SecureRandom.hex(16)
+      url = "/files/#{session_id}/#{filename}.png"
+      dir = "./public#{url}"
+      masked.write(dir)
+      
+      picture = {"source" => url}
+      content_type :json
+      picture.to_json
+    rescue => exc
+      content_type :json
+      exc.to_json
+    end
   end
 
   #友達リストを取得
