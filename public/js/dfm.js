@@ -102,6 +102,7 @@ function initFriendsOrder() {
 
 		$friends.each(function(){
 				$(this).attr("data-closely", 9999);
+				$(this).addClass("active");
 		});
 
 		sortFriends();
@@ -112,12 +113,17 @@ function initFriendsOrder() {
  */
 function resetFriendsOrder() {
 		initFriendsOrder();
+
+		var $friendItemContainer = $("#friend-item-container")
 		
 		var tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
 		for(i = 0; i < tags.length; i ++){
 				var tag = tags[i];
 				var remain = tags.slice(undefined, i).concat(tags.slice(i+1, undefined));
 
+				$friendItemContainer.find("[data-id='"+tag+"']").removeClass("active");
+				$friendItemContainer.isotope({ filter: '.active' });
+				
 				$.ajax(
 						{
 								url: "closely.json",
