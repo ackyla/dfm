@@ -349,10 +349,21 @@ function addAbsence(id) {
 
 				// 閉じる
 				$absence.find(".close-button").click(function(){
-						$(this).closest('.absence-wrapper').remove();
+						removeAbsence($(this).closest(".absence-wrapper").attr("data-id"));
 						return false;
 				});
 		});
+}
+
+/**
+ * 欠席者を削除する
+ */
+function removeAbsence(id) {
+		var $friendItemContainer = $("#friend-item-container")
+		
+		$("[data-id="+id+"].absence-wrapper").remove();
+		$friendItemContainer.find("[data-id="+id+"]").addClass("active");
+		$friendItemContainer.isotope({ filter: '.active' });
 }
 
 /**
