@@ -75,17 +75,15 @@ function getFriends() {
 
 				// isotopeに友達リストを挿入
 				$friendContainer.isotope("insert", $friends);
-				
+
+				// 友達リストの並びを初期化
 				initFriendsOrder();
 				
 				// クリックした時の動作
 				$friends.click(function(){
 						var id = $(this).attr("data-id");
-						// フィルター
-						$(this).removeClass("active");
-						$friendContainer.isotope({ filter: '.active' });
-						addAbsence(id);
-						getMutualFriends(id);
+						hideFriend(id);
+						addAbsentee(id);
 						return false;
 				});
 		});
@@ -104,43 +102,6 @@ function initFriendsOrder() {
 		});
 
 		sortFriends();
-}
-
-/**
- * 共通の友達ソートをリセットする
- */
-function resetFriendsOrder() {
-		initFriendsOrder();
-
-		var $friendItemContainer = $("#friend-item-container")
-		
-		var tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
-		for(i = 0; i < tags.length; i ++){
-				var tag = tags[i];
-				var remain = tags.slice(undefined, i).concat(tags.slice(i+1, undefined));
-
-				$friendItemContainer.find("[data-id='"+tag+"']").removeClass("active");
-				$friendItemContainer.isotope({ filter: '.active' });
-				
-				$.ajax(
-						{
-								url: "closely.json",
-								type: "POST",
-								data: {
-										id: tag,
-										absences: new Array(),
-										tags: remain
-								},
-								success: function(json){
-										$.each(json, function(key, val){
-												changeClosely(key, val);
-										});
-										sortFriends();
-								},
-								dataType: "json"
-						}
-				);
-		}
 }
 
 /**
@@ -164,41 +125,6 @@ function sortFriends() {
 				sortBy : "closely",
 				sortAscending : true
 		});
-}
-
-/**
- * 共通の友達を取得する
- */
-function getMutualFriends(id) {
-		var absences = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
-		var tags = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
-		
-		$.ajax(
-				{
-						url: "closely.json",
-						type: "POST",
-						data: {
-								id: id,
-								absences: absences,
-								tags: tags
-						},
-						success: function(json){
-								$.each(json, function(key, val){
-										changeClosely(key, val);
-								});
-								sortFriends();
-						},
-						dataType: "json"
-				}
-		);
-}
-
-/**
- * 繋がりの値を更新する
- */
-function changeClosely(id, closely) {
-		$friend = $("#friend-item-container [data-id="+id+"]");
-		$friend.attr("data-closely", parseInt($friend.attr("data-closely"))-closely);
 }
 
 /**
@@ -294,7 +220,13 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
-								addPhoto($(this).attr("data-source"), $(this).find("[name='tags[]']").map(function(){ return $(this).val(); }));
+								// 写真を表示
+								addPhoto($(this).attr("data-source"));
+								// 出席者を追加
+								$(this).find("[name='tags[]']").each(function(){
+										addAttendee($(this).val());
+								});
+								
 								$photoSelectWrapper.hide()
 								return false;
 						});
@@ -314,7 +246,13 @@ function getPhotos(id) {
 						$photoContainer.isotope("insert", $photo);
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
-								addPhoto($(this).attr("data-source"), $(this).find("[name='tags[]']").map(function(){ return $(this).val(); }));
+								// 写真を表示
+								addPhoto($(this).attr("data-source"));
+								// 出席者を追加
+								$(this).find("[name='tags[]']").each(function(){
+										addAttendee($(this).val());
+								});
+
 								$photoSelectWrapper.hide()
 								return false;
 						});
@@ -323,15 +261,62 @@ function getPhotos(id) {
 }
 
 /**
+ * 繋がりを遠くする
+ */
+function updateClosely(id, absentees, attendees, operator) {
+		$.ajax(
+				{
+						url: "closely.json",
+						type: "POST",
+						data: {
+								id: id,
+								absences: absentees,
+								tags: attendees
+						},
+						success: function(json){
+								$.each(json, function(key, val){
+										$friend = $("#friend-item-container [data-id="+key+"]");
+										$friend.attr("data-closely", parseInt($friend.attr("data-closely"))+(operator*val));
+								});
+								sortFriends();
+						},
+						dataType: "json"
+				}
+		);
+}
+
+/**
+ * 出席者を追加する
+ */
+function addAttendee(id) {
+		var $photoInner = $("#photo-inner");
+		var $attendee = $("<input type='hidden' name='tags[]' value="+id+" />");
+		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+
+		// ajax
+		updateClosely(id, absentees, attendees, -1);
+
+		hideFriend(id);
+		$photoInner.prepend($attendee);
+}
+
+/**
  * 欠席者を追加する
  */
-function addAbsence(id) {
+function addAbsentee(id) {
 		// 欠席者の写真を取得
 		$.getJSON("absence.json?id="+id, function(json){
-				// 欠席者追加
+				// 欠席者取得
 				var $absence = $(new EJS({
 						url: "ejs/absence.ejs"
 				}).render({ picture: json["source"], id: id }));
+				var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+				var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+
+				// ajax
+				updateClosely(id, absentees, attendees, -1);
+
 				$("#absence-container").prepend($absence);
 
 				// ドラッガブル
@@ -349,7 +334,8 @@ function addAbsence(id) {
 
 				// 閉じる
 				$absence.find(".close-button").click(function(){
-						removeAbsence($(this).closest(".absence-wrapper").attr("data-id"));
+						showFriend(id);
+						removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
 						return false;
 				});
 		});
@@ -358,28 +344,57 @@ function addAbsence(id) {
 /**
  * 欠席者を削除する
  */
-function removeAbsence(id) {
-		var $friendItemContainer = $("#friend-item-container")
-		
+function removeAbsentee(id) {
+
 		$("[data-id="+id+"].absence-wrapper").remove();
+
+		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+
+		// ajax
+		updateClosely(id, absentees, attendees, 1);
+}
+
+/**
+ * 友達を表示する
+ */
+function showFriend(id) {
+		var $friendItemContainer = $("#friend-item-container")
+
 		$friendItemContainer.find("[data-id="+id+"]").addClass("active");
+		$friendItemContainer.isotope({ filter: '.active' });
+}
+
+/**
+ * 友達を非表示にする
+ */
+function hideFriend(id) {
+		var $friendItemContainer = $("#friend-item-container")
+
+		$friendItemContainer.find("[data-id="+id+"]").removeClass("active");
 		$friendItemContainer.isotope({ filter: '.active' });
 }
 
 /**
  * 写真を追加する
  */
-function addPhoto(source, tags) {
-		var $photoWrapper = $("#photo-wrapper");
-		
+function addPhoto(source) {
+		var $photoWrapper = $("#photo-wrapper");		
 		var $photo = $(new EJS({
 				url: "ejs/photo.ejs"
-		}).render({ source: source, tags: tags }));
+		}).render({ source: source }));
+
+		// 欠席者を削除
+		$(".absence-wrapper").each(function(){
+				removeAbsentee($(this).attr("data-id"));
+		});
+
+		// 友達リストの並びを初期化
+		initFriendsOrder();
+		
 		$photoWrapper.show();
 		$("#photo-inner").remove();
 		$photoWrapper.prepend($photo);
-
-		resetFriendsOrder();
 }
 /**
  * 写真を作る

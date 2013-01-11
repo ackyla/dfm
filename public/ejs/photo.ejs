@@ -1,7 +1,4 @@
 <div id="photo-inner">
 	<input type="hidden" name="photo" value="<%= source %>" />
-	<% for(var i=0; i < tags.length; i ++) { %>
-	<input type="hidden" name="tags[]" value="<%= tags[i] %>" />
-	<% } %>
 	<img src="<%= source %>" class="photo" style="width: 740px; z-index: -1000;" />
 </div>
