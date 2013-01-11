@@ -190,30 +190,41 @@ class DfmApp < Sinatra::Base
     #追加する欠席者のID
     id = params[:id]
 
-    #追加する欠席者を取得
-    user = FbGraph::User.new(id, :access_token => session[:token]).fetch
+    #ユーザを取得
+    me = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
 
     closely = Hash::new
+
+    mutuals = me.mutual_friends(id).to_a.map{|friend|
+      friend.identifier
+    }
+    
     absences.each{|absence|
-      friends = user.mutual_friends(absence)
+      friends = me.mutual_friends(absence)
       friends.each{|friend|
-        if closely["#{friend.identifier}"].nil?
-          closely["#{friend.identifier}"] = 1
-        else
-          closely["#{friend.identifier}"] += 1
+        if(mutuals.include?(friend.identifier))
+          if closely["#{friend.identifier}"].nil?
+            closely["#{friend.identifier}"] = 1
+          else
+            closely["#{friend.identifier}"] += 1
+          end
         end
       }
     }
+
     tags.each{|tag|
-      friends = user.mutual_friends(tag)
+      friends = me.mutual_friends(tag)
       friends.each{|friend|
-        if closely["#{friend.identifier}"].nil?
-          closely["#{friend.identifier}"] = 1
-        else
-          closely["#{friend.identifier}"] += 1
+        if(mutuals.include?(friend.identifier))
+          if closely["#{friend.identifier}"].nil?
+            closely["#{friend.identifier}"] = 1
+          else
+            closely["#{friend.identifier}"] += 1
+          end
         end
       }
     }
+
     content_type :json
     closely.to_json
   end
