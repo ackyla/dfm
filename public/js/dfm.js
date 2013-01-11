@@ -68,7 +68,7 @@ function getFriends() {
 		var $friendContainer = $("#friend-item-container");
 
 		// 友達リストを取得
-		$.getJSON("http://localhost:9393/friends.json", function(json){
+		$.getJSON("friends.json", function(json){
 				var $friends = $(new EJS({
 						url: "ejs/friend.ejs"
 				}).render({ friends: json }));
@@ -225,7 +225,7 @@ function getAlbums() {
 		$("#loading-albums").show();
 
 		// アルバムリストを取得
-		$.getJSON("http://localhost:9393/albums.json", function(json){
+		$.getJSON("albums.json", function(json){
 				var $albums = $(new EJS({
 						url: "ejs/isotope_item.ejs"
 				}).render({ items: json }));
@@ -280,7 +280,7 @@ function getPhotos(id) {
 		$("#loading-photos").show();
 		
 		if(id == "0"){
-				$.getJSON("http://localhost:9393/tagged_photos.json", function(json){
+				$.getJSON("tagged_photos.json", function(json){
 						var $photo = $(new EJS({
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
@@ -300,7 +300,7 @@ function getPhotos(id) {
 						});
 				});
 		}else{
-				$.getJSON("http://localhost:9393/photos.json?id="+id, function(json){
+				$.getJSON("photos.json?id="+id, function(json){
 						var $photo = $(new EJS({
 								url: "ejs/isotope_item.ejs"
 						}).render({ items: json }));
@@ -327,7 +327,7 @@ function getPhotos(id) {
  */
 function addAbsence(id) {
 		// 欠席者の写真を取得
-		$.getJSON("http://localhost:9393/absence.json?id="+id, function(json){
+		$.getJSON("absence.json?id="+id, function(json){
 				// 欠席者追加
 				var $absence = $(new EJS({
 						url: "ejs/absence.ejs"
@@ -381,7 +381,7 @@ function createPhoto(){
 
 		var absence = {src: src, x: x, y: y};
 		
-		$.post("http://localhost:9393/create",
+		$.post("create",
 					 {
 							 photo: photo,
 							 absence: absence
