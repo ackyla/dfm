@@ -4,7 +4,7 @@ require 'fb_graph'
 require 'json'
 require 'RMagick'
 require 'base64'
-require 'SecureRandom'
+require 'securerandom'
 
 class DfmApp < Sinatra::Base
 
