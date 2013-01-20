@@ -79,36 +79,6 @@ class DfmApp < Sinatra::Base
 
     redirect '/edit'
   end
-  
-  get '/absence.json' do
-    id = params[:id]
-    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
-
-    begin
-      url = user.raw_attributes["picture"]["data"]["url"]
-      absence = Magick::ImageList.new(url)
-      mask = Magick::ImageList.new("./masks/mask_oval.png")
-      mask.alpha = Magick::ActivateAlphaChannel
-      masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
-
-    #    masked.background_color = "black"
-    #   shadow = masked.shadow(5, 5, 3, 0.4)
-    #   shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
-    
-      session_id = session[:session_id]
-      filename = SecureRandom.hex(16)
-      url = "/files/#{session_id}/#{filename}.png"
-      dir = "./public#{url}"
-      masked.write(dir)
-      
-      picture = {"source" => url}
-      content_type :json
-      picture.to_json
-    rescue => exc
-      content_type :json
-      exc.to_json
-    end
-  end
 
   #友達リストを取得
   get '/friends.json' do
@@ -162,10 +132,43 @@ class DfmApp < Sinatra::Base
     photos.to_json
   end
 
-  #写真を取得
+  get '/absence.json' do
+    id = params[:id]
+    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
+    fb_url = user.raw_attributes["picture"]["data"]["url"]
+    session_id = session[:session_id]
+    filename = SecureRandom.hex(16)
+    url = "/files/#{session_id}/#{filename}.png"
+    dir = "./public#{url}"
+
+    begin
+      absence = Magick::ImageList.new(fb_url)
+      mask = Magick::ImageList.new("./masks/mask_oval.png")
+      mask.alpha = Magick::ActivateAlphaChannel
+      masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
+
+=begin
+      masked.background_color = "black"
+      shadow = masked.shadow(5, 5, 3, 0.4)
+      shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
+=end   
+
+      masked.write(dir)
+      
+      picture = {"source" => url}
+      content_type :json
+      picture.to_json
+    rescue => exc
+      content_type :json
+      exc.to_json
+    end
+  end
+
+  #写真サムネイルを取得
   get '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
+
     photos = album.photos.to_a.map{|photo|
       {
         "id" => photo.identifier,
@@ -180,6 +183,29 @@ class DfmApp < Sinatra::Base
     }
     content_type :json
     photos.to_json
+  end
+
+  #写真を取得
+  post '/photo.json' do
+    id = params[:id]
+    photo = FbGraph::Photo.new(id, :access_token => session[:token]).fetch
+    session_id = session[:session_id]
+
+    fb_url = photo.source
+    filename = SecureRandom.hex(16)
+    url = "/files/#{session_id}/#{filename}.jpg"
+    dir = "./public#{url}"
+    img = Magick::ImageList.new(fb_url)
+
+    #横幅が800より大きかったら比率維持して縮小
+    if(img.columns > 800)
+      img = img.resize_to_fit(800, 0)
+    end
+
+    img.write(dir)
+
+    content_type :json
+    url.to_json
   end
 
   post '/closely.json' do

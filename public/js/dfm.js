@@ -194,7 +194,6 @@ function showPhotos(id) {
  * 写真を取得する
  */
 function getPhotos(id) {
-		var $photoSelectWrapper = $("#photo-select-wrapper");
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");
 
@@ -221,13 +220,7 @@ function getPhotos(id) {
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								// 写真を表示
-								addPhoto($(this).attr("data-source"));
-								// 出席者を追加
-								$(this).find("[name='tags[]']").each(function(){
-										addAttendee($(this).val());
-								});
-								
-								$photoSelectWrapper.hide()
+								addPhoto($(this));
 								return false;
 						});
 				});
@@ -247,13 +240,7 @@ function getPhotos(id) {
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								// 写真を表示
-								addPhoto($(this).attr("data-source"));
-								// 出席者を追加
-								$(this).find("[name='tags[]']").each(function(){
-										addAttendee($(this).val());
-								});
-
-								$photoSelectWrapper.hide()
+								addPhoto($(this));
 								return false;
 						});
 				});
@@ -378,24 +365,50 @@ function hideFriend(id) {
 /**
  * 写真を追加する
  */
-function addPhoto(source) {
-		var $photoWrapper = $("#photo-wrapper");		
-		var $photo = $(new EJS({
-				url: "ejs/photo.ejs"
-		}).render({ source: source }));
-
-		// 欠席者を削除
-		$(".absence-wrapper").each(function(){
-				removeAbsentee($(this).attr("data-id"));
-		});
-
-		// 友達リストの並びを初期化
-		initFriendsOrder();
+function addPhoto($item) {
+		var id = $item.attr("data-id");
 		
-		$photoWrapper.show();
-		$("#photo-inner").remove();
-		$photoWrapper.prepend($photo);
+		$.ajax(
+				{
+						url: "photo.json",
+						type: "POST",
+						data: {
+								id: id,
+						},
+						success: function(json){
+								var $photoWrapper = $("#photo-wrapper");
+								var source =  json;
+
+								var $photo = $(new EJS({
+										url: "ejs/photo.ejs"
+								}).render({ source: source }));
+
+								// 欠席者を削除
+								$(".absence-wrapper").each(function(){
+										removeAbsentee($(this).attr("data-id"));
+								});
+
+								// 友達リストの並びを初期化
+								initFriendsOrder();
+
+								// 写真を追加
+								$photoWrapper.show();
+								$("#photo-inner").remove();
+								$photoWrapper.prepend($photo);
+
+								// 出席者を追加
+								$item.find("[name='tags[]']").each(function(){
+										addAttendee($(this).val());
+								});
+
+								// 写真リストを隠す
+								$("#photo-select-wrapper").hide();
+						},
+						dataType: "json"
+				}
+		);
 }
+
 /**
  * 写真を作る
  */
