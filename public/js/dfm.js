@@ -377,11 +377,10 @@ function addPhoto($item) {
 						},
 						success: function(json){
 								var $photoWrapper = $("#photo-wrapper");
-								var source =  json;
 
 								var $photo = $(new EJS({
 										url: "ejs/photo.ejs"
-								}).render({ source: source }));
+								}).render({ source: json["source"], width: json["width"] }));
 
 								// 欠席者を削除
 								$(".absence-wrapper").each(function(){

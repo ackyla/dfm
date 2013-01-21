@@ -204,8 +204,14 @@ class DfmApp < Sinatra::Base
 
     img.write(dir)
 
+    res = {
+      "source" => url,
+      "width" => img.columns,
+      "height" => img.rows
+    }
+
     content_type :json
-    url.to_json
+    res.to_json
   end
 
   post '/closely.json' do
@@ -256,8 +262,9 @@ class DfmApp < Sinatra::Base
   end
 
   post '/create' do
-    photo = Magick::ImageList.new(params[:photo]).resize_to_fit(740, 100000)
+    photo = Magick::ImageList.new("./public#{params[:photo]}")
     absences = params[:absence]
+
     tags = Array::new
     for i in 0..(absences["x"].size-1)
       absence = Magick::ImageList.new("./public#{absences["src"][i]}")
