@@ -3,6 +3,12 @@ var csrf_token;
 $(function(){
 
 		window.csrf_token = $("[name='_csrf']").val();
+
+		$.ajaxSetup({
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+						$("#communication-error-message").show();
+				}
+		});
 		
 		// isotopeを初期化
 		initIsotope();

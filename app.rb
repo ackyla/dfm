@@ -153,7 +153,7 @@ class DfmApp < Sinatra::Base
   post '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
-
+    
     photos = album.photos.to_a.map{|photo|
       {
         "id" => photo.identifier,
