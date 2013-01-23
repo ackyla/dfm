@@ -1,23 +1,35 @@
 # -*- coding: utf-8 -*-
 require 'sinatra/base'
+require 'rack/csrf'
 require 'fb_graph'
 require 'json'
 require 'RMagick'
 require 'base64'
 require 'securerandom'
 
+
 class DfmApp < Sinatra::Base
 
   configure do
     APP_KEY, APP_SECRET = File.open(".key").read.split
+    use Rack::Session::Cookie,
+    #:key => 'dfm.session',
+    #:domain => 't-forget.me',
+    #:path => '/',
+    :expire_after => 3600,
+    :secret => 'hogehoge'
+    use Rack::Csrf, :raise => true
   end
 
-  use Rack::Session::Cookie,
-  #:key => 'dfm.session',
-  #:domain => 't-forget.me',
-  #:path => '/',
-  :expire_after => 3600,
-  :secret => 'hogehoge'
+  helpers do
+    def csrf_token
+      Rack::Csrf.csrf_token(env)
+    end
+    
+    def csrf_tag
+      Rack::Csrf.csrf_tag(env)
+    end
+  end
 
   error do
     "sorry"
