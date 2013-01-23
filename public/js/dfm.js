@@ -220,7 +220,7 @@ function getPhotos(id) {
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								// 写真を表示
-								addPhoto($(this));
+								getPhoto($(this));
 								return false;
 						});
 				});
@@ -240,7 +240,7 @@ function getPhotos(id) {
 						$photoContainer.isotope({ filter: ".album-"+id });
 						$photo.click(function(){
 								// 写真を表示
-								addPhoto($(this));
+								getPhoto($(this));
 								return false;
 						});
 				});
@@ -365,8 +365,17 @@ function hideFriend(id) {
 /**
  * 写真を追加する
  */
-function addPhoto($item) {
+function getPhoto($item) {
+		var $photoWrapper = $("#photo-wrapper");
+		var $photoItemContainer = $("#photo-item-container");
 		var id = $item.attr("data-id");
+
+		$photoItemContainer.hide();
+		$photoWrapper.show();
+		$("#photo-inner").remove();
+
+		// ローディングアニメーション表示
+		$("#loading-photo").show();
 		
 		$.ajax(
 				{
@@ -376,7 +385,7 @@ function addPhoto($item) {
 								id: id,
 						},
 						success: function(json){
-								var $photoWrapper = $("#photo-wrapper");
+
 
 								var $photo = $(new EJS({
 										url: "ejs/photo.ejs"
@@ -390,9 +399,10 @@ function addPhoto($item) {
 								// 友達リストの並びを初期化
 								initFriendsOrder();
 
+								// ローディングアニメーション消去
+								$("#loading-photo").hide();
+								
 								// 写真を追加
-								$photoWrapper.show();
-								$("#photo-inner").remove();
 								$photoWrapper.prepend($photo);
 
 								// 出席者を追加

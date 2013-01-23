@@ -313,5 +313,6 @@ class DfmApp < Sinatra::Base
     # ファイルを削除
     File.delete(session[:path]) if File.exist?(session[:path])
 
+    redirect '/edit'
   end
 end
