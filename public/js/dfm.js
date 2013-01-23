@@ -67,12 +67,18 @@ function getFrames() {
 function getFriends() {
 		var $friendContainer = $("#friend-item-container");
 
+		// ローディングアニメーション表示
+		$("#loading-friends").show();
+		
 		// 友達リストを取得
 		$.getJSON("friends.json", function(json){
 				var $friends = $(new EJS({
 						url: "ejs/friend.ejs"
 				}).render({ friends: json }));
 
+				// ローディングアニメーション消去
+				$("#loading-friends").hide();
+				
 				// isotopeに友達リストを挿入
 				$friendContainer.isotope("insert", $friends);
 
@@ -248,9 +254,13 @@ function getPhotos(id) {
 }
 
 /**
- * 繋がりを遠くする
+ * 繋がりを計算する
  */
 function updateClosely(id, absentees, attendees, operator) {
+
+		// ソーティングアニメーションを表示
+		$("#sorting-friends").show();
+		
 		$.ajax(
 				{
 						url: "closely.json",
@@ -261,6 +271,9 @@ function updateClosely(id, absentees, attendees, operator) {
 								tags: attendees
 						},
 						success: function(json){
+								// ソーティングアニメーションを消去
+								$("#sorting-friends").hide();
+								
 								$.each(json, function(key, val){
 										$friend = $("#friend-item-container [data-id="+key+"]");
 										$friend.attr("data-closely", parseInt($friend.attr("data-closely"))+(operator*val));
