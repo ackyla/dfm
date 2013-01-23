@@ -71,27 +71,32 @@ function getFriends() {
 		$("#loading-friends").show();
 		
 		// 友達リストを取得
-		$.getJSON("friends.json", function(json){
-				var $friends = $(new EJS({
-						url: "ejs/friend.ejs"
-				}).render({ friends: json }));
-
-				// ローディングアニメーション消去
-				$("#loading-friends").hide();
-				
-				// isotopeに友達リストを挿入
-				$friendContainer.isotope("insert", $friends);
-
-				// 友達リストの並びを初期化
-				initFriendsOrder();
-				
-				// クリックした時の動作
-				$friends.click(function(){
-						var id = $(this).attr("data-id");
-						hideFriend(id);
-						addAbsentee(id);
-						return false;
-				});
+		$.ajax({
+				url: "friends.json",
+				type: "POST",
+				dataType: "json",
+				success: function(json){
+						var $friends = $(new EJS({
+								url: "ejs/friend.ejs"
+						}).render({ friends: json }));
+						
+						// ローディングアニメーション消去
+						$("#loading-friends").hide();
+						
+						// isotopeに友達リストを挿入
+						$friendContainer.isotope("insert", $friends);
+						
+						// 友達リストの並びを初期化
+						initFriendsOrder();
+						
+						// クリックした時の動作
+						$friends.click(function(){
+								var id = $(this).attr("data-id");
+								hideFriend(id);
+								addAbsentee(id);
+								return false;
+						});
+				}
 		});
 }
 
@@ -161,31 +166,36 @@ function getAlbums() {
 		$("#loading-albums").show();
 
 		// アルバムリストを取得
-		$.getJSON("albums.json", function(json){
-				var $albums = $(new EJS({
-						url: "ejs/isotope_item.ejs"
-				}).render({ items: json }));
-
-				// ローディングアニメーション消去
-				$("#loading-albums").hide();
-				
-				// isotopeにアルバムリストを挿入
-				$albumContainer.isotope("insert", $albums);
-
-				// クリックされた時の動作を設定
-				$albums.click(function(){
-						if($(this).hasClass("clicked")){
-								// 1回クリックされたアルバムは写真リストを取得しない
-								showPhotos($(this).attr("data-id"));
-								// 戻るボタンを有効化
+		$.ajax({
+				url: "albums.json",
+				type: "POST",
+				dataType: "json",
+				success: function(json){
+						var $albums = $(new EJS({
+								url: "ejs/isotope_item.ejs"
+						}).render({ items: json }));
+						
+						// ローディングアニメーション消去
+						$("#loading-albums").hide();
+						
+						// isotopeにアルバムリストを挿入
+						$albumContainer.isotope("insert", $albums);
+						
+						// クリックされた時の動作を設定
+						$albums.click(function(){
+								if($(this).hasClass("clicked")){
+										// 1回クリックされたアルバムは写真リストを取得しない
+										showPhotos($(this).attr("data-id"));
+										// 戻るボタンを有効化
 								$("#return-button").removeAttr("disabled");
-						}else{
-								// アルバムIDを使用して写真リストを取得する
-								$(this).addClass("clicked");
-								getPhotos($(this).attr("data-id"));
-						}
-						return false;
-				});
+								}else{
+										// アルバムIDを使用して写真リストを取得する
+										$(this).addClass("clicked");
+										getPhotos($(this).attr("data-id"));
+								}
+								return false;
+						});
+				}
 		});
 }
 
@@ -223,50 +233,63 @@ function getPhotos(id) {
 		$("#loading-photos").show();
 		
 		if(id == "0"){
-				$.getJSON("tagged_photos.json", function(json){
-						var $photo = $(new EJS({
-								url: "ejs/isotope_item.ejs"
-						}).render({ items: json }));
-						$photo.each(function(){
-								$(this).addClass("album-"+id);
-						});
-
-						// 戻るボタンを有効化
-						$("#return-button").removeAttr("disabled");
-						
-						// ローディングアニメーション消去
-						$("#loading-photos").hide();
-						
-						$photoContainer.isotope("insert", $photo);
-						$photoContainer.isotope({ filter: ".album-"+id });
-						$photo.click(function(){
-								// 写真を表示
+				$.ajax({
+						url: "tagged_photos.json",
+						type: "POST",
+						dataType: "json",
+						success: function(json){
+								var $photo = $(new EJS({
+										url: "ejs/isotope_item.ejs"
+								}).render({ items: json }));
+								$photo.each(function(){
+										$(this).addClass("album-"+id);
+								});
+								
+								// 戻るボタンを有効化
+								$("#return-button").removeAttr("disabled");
+								
+								// ローディングアニメーション消去
+								$("#loading-photos").hide();
+								
+								$photoContainer.isotope("insert", $photo);
+								$photoContainer.isotope({ filter: ".album-"+id });
+								$photo.click(function(){
+										// 写真を表示
 								getPhoto($(this));
-								return false;
-						});
+										return false;
+								});
+						}
 				});
 		}else{
-				$.getJSON("photos.json?id="+id, function(json){
-						var $photo = $(new EJS({
-								url: "ejs/isotope_item.ejs"
-						}).render({ items: json }));
-						$photo.each(function(){
-								$(this).addClass("album-"+id);
-						});
-
-						// 戻るボタンを有効化
-						$("#return-button").removeAttr("disabled");
-						
-						// ローディングアニメーション消去
-						$("#loading-photos").hide();
-						
-						$photoContainer.isotope("insert", $photo);
-						$photoContainer.isotope({ filter: ".album-"+id });
-						$photo.click(function(){
-								// 写真を表示
+				$.ajax({
+						url: "photos.json",
+						type: "POST",
+						dataType: "json",
+						data: {
+								id: id
+						},
+						success: function(json){
+								var $photo = $(new EJS({
+										url: "ejs/isotope_item.ejs"
+								}).render({ items: json }));
+								$photo.each(function(){
+										$(this).addClass("album-"+id);
+								});
+								
+								// 戻るボタンを有効化
+								$("#return-button").removeAttr("disabled");
+								
+								// ローディングアニメーション消去
+								$("#loading-photos").hide();
+								
+								$photoContainer.isotope("insert", $photo);
+								$photoContainer.isotope({ filter: ".album-"+id });
+								$photo.click(function(){
+										// 写真を表示
 								getPhoto($(this));
-								return false;
-						});
+										return false;
+								});
+						}
 				});
 		}
 }
@@ -279,28 +302,26 @@ function updateClosely(id, absentees, attendees, operator) {
 		// ソーティングアニメーションを表示
 		$("#sorting-friends").show();
 		
-		$.ajax(
-				{
-						url: "closely.json",
-						type: "POST",
-						data: {
-								id: id,
-								absences: absentees,
-								tags: attendees
-						},
-						success: function(json){
-								// ソーティングアニメーションを消去
-								$("#sorting-friends").hide();
-								
-								$.each(json, function(key, val){
-										$friend = $("#friend-item-container [data-id="+key+"]");
-										$friend.attr("data-closely", parseInt($friend.attr("data-closely"))+(operator*val));
-								});
-								sortFriends();
-						},
-						dataType: "json"
+		$.ajax({
+				url: "closely.json",
+				type: "POST",
+				dataType: "json",
+				data: {
+						id: id,
+						absences: absentees,
+						tags: attendees
+				},
+				success: function(json){
+						// ソーティングアニメーションを消去
+						$("#sorting-friends").hide();
+						
+						$.each(json, function(key, val){
+								$friend = $("#friend-item-container [data-id="+key+"]");
+								$friend.attr("data-closely", parseInt($friend.attr("data-closely"))+(operator*val));
+						});
+						sortFriends();
 				}
-		);
+		});
 }
 
 /**
@@ -324,38 +345,46 @@ function addAttendee(id) {
  */
 function addAbsentee(id) {
 		// 欠席者の写真を取得
-		$.getJSON("absence.json?id="+id, function(json){
-				// 欠席者取得
-				var $absence = $(new EJS({
-						url: "ejs/absence.ejs"
-				}).render({ picture: json["source"], id: id }));
-				var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
-				var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
-
-				// ajax
-				updateClosely(id, absentees, attendees, -1);
-
-				$("#absence-container").prepend($absence);
-
-				// ドラッガブル
-				$absence.draggable({
-						drag: function(){
-								$(this).find("input.position-x").val($(this).css("left"));
-								$(this).find("input.position-y").val($(this).css("top"));
-						}
-				});
-
-				// セレクト(仮)
-				$absence.find(".absence-image-wrapper").click(function(){
-						$(this).toggleClass('selected');
-				});
-
-				// 閉じる
-				$absence.find(".close-button").click(function(){
-						showFriend(id);
-						removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
-						return false;
-				});
+		$.ajax({
+				url: "absence.json",
+				type: "POST",
+				dataType: "json",
+				data: {
+						id: id
+				},
+				success: function(json){
+						// 欠席者取得
+						var $absence = $(new EJS({
+								url: "ejs/absence.ejs"
+						}).render({ picture: json["source"], id: id }));
+						var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+						var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+						
+						// ajax
+						updateClosely(id, absentees, attendees, -1);
+						
+						$("#absence-container").prepend($absence);
+						
+						// ドラッガブル
+						$absence.draggable({
+								drag: function(){
+										$(this).find("input.position-x").val($(this).css("left"));
+										$(this).find("input.position-y").val($(this).css("top"));
+								}
+						});
+						
+						// セレクト(仮)
+						$absence.find(".absence-image-wrapper").click(function(){
+								$(this).toggleClass('selected');
+						});
+						
+						// 閉じる
+						$absence.find(".close-button").click(function(){
+								showFriend(id);
+								removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
+								return false;
+						});
+				}
 		});
 }
 
@@ -414,45 +443,41 @@ function getPhoto($item) {
 		// ローディングアニメーション表示
 		$("#loading-photo").show();
 		
-		$.ajax(
-				{
-						url: "photo.json",
-						type: "POST",
-						data: {
-								id: id,
-						},
-						success: function(json){
-
-
-								var $photo = $(new EJS({
-										url: "ejs/photo.ejs"
-								}).render({ source: json["source"], width: json["width"] }));
-
-								// 欠席者を削除
-								$(".absence-wrapper").each(function(){
-										removeAbsentee($(this).attr("data-id"));
-								});
-
-								// 友達リストの並びを初期化
-								initFriendsOrder();
-
-								// ローディングアニメーション消去
-								$("#loading-photo").hide();
-								
-								// 写真を追加
-								$photoWrapper.prepend($photo);
-
-								// 出席者を追加
-								$item.find("[name='tags[]']").each(function(){
-										addAttendee($(this).val());
-								});
-
-								// 作成ボタンを有効化
-								$("#create-button").removeAttr("disabled");								
-						},
-						dataType: "json"
+		$.ajax({
+				url: "photo.json",
+				type: "POST",
+				dataType: "json",
+				data: {
+						id: id,
+				},
+				success: function(json){
+						var $photo = $(new EJS({
+								url: "ejs/photo.ejs"
+						}).render({ source: json["source"], width: json["width"] }));
+						
+						// 欠席者を削除
+						$(".absence-wrapper").each(function(){
+								removeAbsentee($(this).attr("data-id"));
+						});
+						
+						// 友達リストの並びを初期化
+						initFriendsOrder();
+						
+						// ローディングアニメーション消去
+						$("#loading-photo").hide();
+						
+						// 写真を追加
+						$photoWrapper.prepend($photo);
+						
+						// 出席者を追加
+						$item.find("[name='tags[]']").each(function(){
+								addAttendee($(this).val());
+						});
+						
+						// 作成ボタンを有効化
+						$("#create-button").removeAttr("disabled");								
 				}
-		);
+		});
 }
 
 /**
@@ -464,17 +489,20 @@ function createPhoto(){
 		var x = $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray();
 		var y = $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray();
 
-		var absence = {src: src, x: x, y: y};
+		var absences = {src: src, x: x, y: y};
 		
-		$.post("create",
-					 {
-							 photo: photo,
-							 absence: absence
-					 },
-					 function(json){
-							 showResult(json);
-					 }
-		);
+		$.ajax({
+				url: "create.json",
+				type: "POST",
+				dataType: "json",
+				data: {
+						photo: photo,
+						absences: absences
+				},
+				success: function(json){
+						showResult(json);
+				}
+		});
 }
 
 /**

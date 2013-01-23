@@ -80,8 +80,9 @@ class DfmApp < Sinatra::Base
     redirect '/edit'
   end
 
-  #友達リストを取得
-  get '/friends.json' do
+  # 友達リストを取得
+  # Return:: json
+  post '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
     content_type :json
@@ -94,8 +95,9 @@ class DfmApp < Sinatra::Base
     }.to_json
   end
 
-  #アルバムリストを取得
-  get '/albums.json' do
+  # アルバムリストを取得
+  # Return:: json
+  post '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
     albums = user.albums({"locale" => "ja_JP"})
@@ -112,8 +114,9 @@ class DfmApp < Sinatra::Base
     albums.to_json
   end
 
-  #自分のタグが付いた写真を取得
-  get '/tagged_photos.json' do
+  # 自分のタグが付いた写真を取得
+  # Return:: json
+  post '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     photos = user.photos({"type" => "tagged"})
     photos = photos.to_a.map{|photo|
@@ -132,7 +135,33 @@ class DfmApp < Sinatra::Base
     photos.to_json
   end
 
-  get '/absence.json' do
+  # アルバムの写真を取得
+  # Param:: params[:id](アルバムID)
+  # Return:: json
+  post '/photos.json' do
+    id = params[:id]
+    album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
+
+    photos = album.photos.to_a.map{|photo|
+      {
+        "id" => photo.identifier,
+        "name" => photo.name.nil? ? "無題" : photo.name,
+        "source" => photo.source,
+        "tags" => photo.tags.to_a.map{|tag|
+          {
+            "id" => tag.user.identifier
+          }
+        }
+      }
+    }
+    content_type :json
+    photos.to_json
+  end
+
+  # 欠席者の写真を取得
+  # Param:: params[:id](欠席者のFacebookID)
+  # Return:: json
+  post '/absence.json' do
     id = params[:id]
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
     fb_url = user.raw_attributes["picture"]["data"]["url"]
@@ -164,28 +193,9 @@ class DfmApp < Sinatra::Base
     end
   end
 
-  #写真サムネイルを取得
-  get '/photos.json' do
-    id = params[:id]
-    album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
-
-    photos = album.photos.to_a.map{|photo|
-      {
-        "id" => photo.identifier,
-        "name" => photo.name.nil? ? "無題" : photo.name,
-        "source" => photo.source,
-        "tags" => photo.tags.to_a.map{|tag|
-          {
-            "id" => tag.user.identifier
-          }
-        }
-      }
-    }
-    content_type :json
-    photos.to_json
-  end
-
-  #写真を取得
+  # 写真を取得
+  # Param:: params[:id](写真ID)
+  # Return:: json
   post '/photo.json' do
     id = params[:id]
     photo = FbGraph::Photo.new(id, :access_token => session[:token]).fetch
@@ -214,6 +224,9 @@ class DfmApp < Sinatra::Base
     res.to_json
   end
 
+  # 既に追加されている出席・欠席者に対してそれぞれ共通の友達を取得し合計を計算する
+  # Param:: params[:absences](既に追加されている欠席者のFacebookID), params[:tags](出席者のFacebookID), params[:id](追加する欠席者のFacebookID)
+  # Return:: json
   post '/closely.json' do
     #既に追加されている欠席者
     absences = params[:absences].nil? ? Array::new : params[:absences]
@@ -261,9 +274,12 @@ class DfmApp < Sinatra::Base
     closely.to_json
   end
 
-  post '/create' do
+  # 欠席者を合成した写真を作成
+  # Param:: params[:absences](欠席者の写真urlと座標), params[:photo](ベースの写真url)
+  # Return:: json
+  post '/create.json' do
     photo = Magick::ImageList.new("./public#{params[:photo]}")
-    absences = params[:absence]
+    absences = params[:absences]
 
     tags = Array::new
     for i in 0..(absences["x"].size-1)
@@ -292,12 +308,10 @@ class DfmApp < Sinatra::Base
     }
     content_type :json
     json.to_json
-#    file = File::new(temp.path)
-#    album = FbGraph::Album.new("356382514458483", :access_token => session[:token])
-#    album.photo!(:source => file)
-#    temp.close
   end
 
+  # 作成した写真をFacebookに投稿する
+  # Param:: params[:message](コメント)
   post '/upload' do
     photo = Magick::ImageList.new(session[:path])
     tags = Array::new
