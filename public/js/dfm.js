@@ -137,6 +137,10 @@ function sortFriends() {
  * アルバムを表示する
  */
 function showAlbums() {
+		// ナビメッセージを変更
+		$("#navi-message").text("アルバムを選択");
+		$("#return-button").attr("disabled", "disabled");
+		$("#create-button").attr("disabled", "disabled");
 		$("#loading-photos").hide();
 		$('#photo-select-wrapper').show();
 		$('#album-item-container').show();
@@ -173,6 +177,8 @@ function getAlbums() {
 						if($(this).hasClass("clicked")){
 								// 1回クリックされたアルバムは写真リストを取得しない
 								showPhotos($(this).attr("data-id"));
+								// 戻るボタンを有効化
+								$("#return-button").removeAttr("disabled");
 						}else{
 								// アルバムIDを使用して写真リストを取得する
 								$(this).addClass("clicked");
@@ -190,6 +196,9 @@ function showPhotos(id) {
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");
 
+		// ナビメッセージを変更
+		$("#navi-message").text("写真を選択");
+		
 		$albumContainer.hide();
 		$photoContainer.show();
 
@@ -203,10 +212,13 @@ function getPhotos(id) {
 		var $albumContainer = $("#album-item-container");
 		var $photoContainer = $("#photo-item-container");
 
+		// ナビメッセージを変更
+		$("#navi-message").text("写真を選択");
+		
 		$albumContainer.hide();
 		$photoContainer.show();
 		$photoContainer.isotope({ filter: ":not(.item)" });
-
+		
 		// ローディングアニメーション表示
 		$("#loading-photos").show();
 		
@@ -219,6 +231,9 @@ function getPhotos(id) {
 								$(this).addClass("album-"+id);
 						});
 
+						// 戻るボタンを有効化
+						$("#return-button").removeAttr("disabled");
+						
 						// ローディングアニメーション消去
 						$("#loading-photos").hide();
 						
@@ -239,6 +254,9 @@ function getPhotos(id) {
 								$(this).addClass("album-"+id);
 						});
 
+						// 戻るボタンを有効化
+						$("#return-button").removeAttr("disabled");
+						
 						// ローディングアニメーション消去
 						$("#loading-photos").hide();
 						
@@ -387,6 +405,12 @@ function getPhoto($item) {
 		$photoWrapper.show();
 		$("#photo-inner").remove();
 
+		// 写真リストを隠す
+		$("#photo-select-wrapper").hide();
+		
+		// ナビメッセージを変更
+		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		
 		// ローディングアニメーション表示
 		$("#loading-photo").show();
 		
@@ -423,8 +447,8 @@ function getPhoto($item) {
 										addAttendee($(this).val());
 								});
 
-								// 写真リストを隠す
-								$("#photo-select-wrapper").hide();
+								// 作成ボタンを有効化
+								$("#create-button").removeAttr("disabled");								
 						},
 						dataType: "json"
 				}

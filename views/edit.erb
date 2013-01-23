@@ -14,11 +14,15 @@
 		<form method="post" id="form" action="/create" style="margin: 0;">
 			<div id="photo-container" style="display: block; margin: 10px; padding: 9px; border: 1px solid black;">
 				<div id="photo-nav" style="display: block; border: 1px solid black; position: relative;">
-					<div id="photo-nav-inner" style="padding: 5px; position: relative;">
-						<ul class="breadcrumb">
-							<li class="active"><a href="#" onclick="showAlbums(); return false;">アルバム</a></li>
-							<li><button type="button" class="btn" onclick="createPhoto(); return false;">送信</button></li>
-						</ul>
+					<div id="photo-nav-inner" style="padding: 5px 20px; position: relative; line-height: 38px;">
+						<div style="float: right;">
+							<button id="return-button" type="button" class="btn" onclick="showAlbums(); return false;" disabled="disabled"><i class="icon-arrow-left"></i> 戻る</button>
+							<button id="create-button" type="button" class="btn btn-primary" onclick="createPhoto(); return false;" disabled="disabled"><i class="icon-ok icon-white"></i> 合成する</button>
+						</div>
+						<div>
+							<h4 id="navi-message">アルバムを選択</h4>
+						</div>
+						<p style="clear: right;"></p>
 					</div>
 				</div>
 				<div id="photo-select-wrapper" style="display: block; border: 1px solid black; position: relative;">
