@@ -56,9 +56,15 @@ class DfmApp < Sinatra::Base
     end
 
     @page_name = "写真作成 | "
+    @dfm_js = "<script type='text/javascript' src='js/dfm.js'></script>"
     erb :edit
   end
   
+  get '/finished' do
+    @page_name = "投稿完了 | "
+    erb :finished
+  end
+
   #facebook認証
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
@@ -339,6 +345,6 @@ class DfmApp < Sinatra::Base
     # ファイルを削除
     File.delete(session[:path]) if File.exist?(session[:path])
 
-    redirect '/edit'
+    redirect '/finished'
   end
 end
