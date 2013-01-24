@@ -511,7 +511,6 @@ function createPhoto(){
 		var src = $("#photo-container [name='absence[src][]']").map(function(){ return $(this).val(); }).toArray();
 		var x = $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray();
 		var y = $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray();
-
 		var absences = {src: src, x: x, y: y};
 		
 		$.ajax({
@@ -523,6 +522,7 @@ function createPhoto(){
 						photo: photo,
 						absences: absences
 				},
+				async: false,
 				success: function(json){
 						showResult(json);
 				}
