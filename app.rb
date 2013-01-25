@@ -319,8 +319,6 @@ class DfmApp < Sinatra::Base
       self.quality = 95
     }
 
-    session[:path] = dir
-
     json = {
       "path" => url,
       "tags" => tags
@@ -330,9 +328,10 @@ class DfmApp < Sinatra::Base
   end
 
   # 作成した写真をFacebookに投稿する
-  # Param:: params[:message](コメント)
+  # Param:: params[:url](合成写真のurl), params[:name][](タグ名), params[:x][](タグのx座標), params[:y][](タグのy座標), params[:message](コメント)
   post '/upload' do
-    photo = Magick::ImageList.new(session[:path])
+    dir = "./public#{params[:url]}"
+    photo = Magick::ImageList.new(dir)
     tags = Array::new
     for i in 0..(params[:name].size-1)
       tags.append(FbGraph::Tag.new(:name => "tag-#{params[:name][i]}", :x => params[:x][i].to_f / photo.columns * 100, :y => params[:y][i].to_f / photo.rows * 100))
@@ -341,10 +340,10 @@ class DfmApp < Sinatra::Base
     message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
 
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    user.photo!(:source => File.new(session[:path]), :message => message, :tags => tags)
+    user.photo!(:source => File.new(dir), :message => message, :tags => tags)
     
     # ファイルを削除
-    File.delete(session[:path]) if File.exist?(session[:path])
+    #File.delete(session[:path]) if File.exist?(session[:path])
 
     redirect '/finished'
   end

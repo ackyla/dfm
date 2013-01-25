@@ -9,6 +9,7 @@
 			<textarea id="message" name="message" style="display: none; margin: 10px auto 10px; width: 90%; height: 120px;"></textarea>
 			<div id="result-container" style="background: whitesmoke;">
 				<img src="<%= source %>" class="result" style="display: block; margin: 5px auto;"/>
+				<input type="hidden" name="url" value="<%= source %>" />
 				<% for(var i=0; i < tags.length; i ++) { %>
 				<input type="hidden" name="name[]" value="<%= tags[i]['name'] %>" />
 				<input type="hidden" name="x[]" value="<%= tags[i]['x'] %>" />
