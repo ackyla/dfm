@@ -4,6 +4,7 @@ require 'rack/csrf'
 require 'fb_graph'
 require 'json'
 require 'RMagick'
+require 'imlib2'
 require 'base64'
 require 'securerandom'
 
@@ -297,14 +298,8 @@ class DfmApp < Sinatra::Base
   # Param:: params[:absences](欠席者の写真urlと座標), params[:photo](ベースの写真url)
   # Return:: json
   post '/create.json' do
-    photo = Magick::ImageList.new("./public#{params[:photo]}")
-    absences = params[:absences]
-
-    for i in 0..(absences["x"].size-1)
-      absence = Magick::ImageList.new("./public#{absences["src"][i]}")
-      photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
-    end
     
+    absences = params[:absences]
     session_id = session[:session_id]
     filename = SecureRandom.hex(16)
     url = "/files/#{session_id}/photo_#{filename}.jpg"
@@ -313,9 +308,28 @@ class DfmApp < Sinatra::Base
     # ディレクトリが無かったら作る
     FileUtils.mkdir_p("./public/files/#{session_id}") unless FileTest.exist?("./public/files/#{session_id}")
 
-    photo.write(dir){
-      self.quality = 95
-    }
+    if(false)
+      photo = Magick::ImageList.new("./public#{params[:photo]}")
+
+      for i in 0..(absences["x"].size-1)
+        absence = Magick::ImageList.new("./public#{absences["src"][i]}")
+        photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
+      end
+
+      photo.write(dir){
+        self.quality = 95
+      }
+    else
+      photo = Imlib2::Image.load("./public#{params[:photo]}")
+
+      for i in 0..(absences["x"].size-1)
+        absentee = Imlib2::Image.load("./public#{absences["src"][i]}")
+        photo = photo.blend(absentee, 0, 0, absentee.width, absentee.height, absences["x"][i].to_i, absences["y"][i].to_i, absentee.width, absentee.height, false)
+      end
+
+      photo.attach_value("quality", 95)
+      photo.save(dir)
+    end
 
     json = {
       "path" => url,

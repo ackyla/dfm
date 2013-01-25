@@ -558,7 +558,7 @@ function upload() {
 				},
 				async: false,
 				success: function(html){
-						alert(html);
+						
 				}
 		});
 }
