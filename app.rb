@@ -41,6 +41,7 @@ class DfmApp < Sinatra::Base
 
   get '/' do
     @page_name = ""
+    @page_js = "<script type='text/javascript' src='js/index.js'></script>"
     erb :index
   end
 
@@ -56,7 +57,7 @@ class DfmApp < Sinatra::Base
     end
 
     @page_name = "写真作成 | "
-    @dfm_js = "<script type='text/javascript' src='js/dfm.js'></script>"
+    @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
     erb :edit
   end
   
