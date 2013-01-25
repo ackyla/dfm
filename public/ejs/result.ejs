@@ -8,18 +8,12 @@
 			<p onclick="$(this).hide(); $('#message').show(); return false;" style="margin: 10px 0;"><a href="#">コメントを書く</a></p>
 			<textarea id="message" name="message" style="display: none; margin: 10px auto 10px; width: 90%; height: 120px;"></textarea>
 			<div id="result-container" style="background: whitesmoke;">
-				<img src="<%= source %>" class="result" style="display: block; margin: 5px auto;"/>
-				<input type="hidden" name="url" value="<%= source %>" />
-				<% for(var i=0; i < tags.length; i ++) { %>
-				<input type="hidden" name="name[]" value="<%= tags[i]['name'] %>" />
-				<input type="hidden" name="x[]" value="<%= tags[i]['x'] %>" />
-				<input type="hidden" name="y[]" value="<%= tags[i]['y'] %>" />
-				<% } %>
+				<img src="<%= source %>" id="result-image" style="display: block; margin: 5px auto;"/>
 			</div>
 		</div>
 		<div class="modal-footer">
 			<a href="#" class="btn" data-dismiss="modal">キャンセル</a>
-			<input type="submit" class="btn btn-primary" value="投稿する">
+			<button type="button" class="btn btn-primary" onClick="upload(); return false;">投稿する</button>
 		</div>
 
 </div>

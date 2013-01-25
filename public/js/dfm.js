@@ -536,9 +536,29 @@ function showResult(json) {
 		var $modalContainer = $("#modal-container");		
 		var $result = $(new EJS({
 				url: "ejs/result.ejs"
-		}).render({ source: json['path'], tags: json['tags'] }));
+		}).render({ source: json['path'] }));
 		
 		$modalContainer.empty();
 		$modalContainer.prepend($result);
 		$result.modal("show");
+}
+
+function upload() {
+		$.ajax({
+				url: "upload",
+				type: "POST",
+				dataType: "html",
+				data: {
+						_csrf: window.csrf_token,
+						url: $("#result-image").attr("src"),
+						message: $("#message").val(),
+						name: $("#photo-container [name='absence[src][]']").map(function(){ return $(this).val(); }).toArray(),
+						x: $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray(),
+						y: $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray()						
+				},
+				async: false,
+				success: function(html){
+						alert(html);
+				}
+		});
 }
