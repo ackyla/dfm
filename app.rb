@@ -345,7 +345,7 @@ class DfmApp < Sinatra::Base
     dir = "./public#{params[:url]}"
     photo = Magick::ImageList.new(dir)
     tags = Array::new
-    for i in 0..(params[:name].size-1)
+    for i in 0..(params[:id].size-1)
       tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
     end
 
