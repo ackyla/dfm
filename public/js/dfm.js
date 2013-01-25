@@ -552,9 +552,9 @@ function upload() {
 						_csrf: window.csrf_token,
 						url: $("#result-image").attr("src"),
 						message: $("#message").val(),
-						name: $("#photo-container [name='absence[src][]']").map(function(){ return $(this).val(); }).toArray(),
-						x: $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray(),
-						y: $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray()						
+						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
+						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
+						y: $(".position-y").map(function(){ return $(this).val(); }).toArray()
 				},
 				async: false,
 				success: function(html){

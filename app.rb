@@ -332,7 +332,7 @@ class DfmApp < Sinatra::Base
     photo = Magick::ImageList.new(dir)
     tags = Array::new
     for i in 0..(params[:name].size-1)
-      tags.append(FbGraph::Tag.new(:name => "tag-#{params[:name][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+      tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
     end
 
     message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
