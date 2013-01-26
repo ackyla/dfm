@@ -495,7 +495,9 @@ function getPhoto($item) {
 						
 						// 出席者を追加
 						$.each(json["tags"], function(){
-								addAttendee(this);
+								if(this.id != undefined, this.x != undefined, this.y != undefined){
+										addAttendee(this);
+								}
 						});
 						
 						// 作成ボタンを有効化

@@ -232,7 +232,7 @@ class DfmApp < Sinatra::Base
           "id" => tag.user.identifier,
           "x" => tag.x,
           "y" => tag.y
-        }
+        } if tag.user != nil
       }
     }
 
