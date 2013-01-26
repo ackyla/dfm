@@ -43,6 +43,7 @@ class DfmApp < Sinatra::Base
   get '/' do
     @page_name = ""
     @page_js = "<script type='text/javascript' src='js/index.js'></script>"
+    @app_key = APP_KEY
     erb :index
   end
 
@@ -64,6 +65,7 @@ class DfmApp < Sinatra::Base
   
   get '/finished' do
     @page_name = "投稿完了 | "
+    @app_key = APP_KEY
     erb :finished
   end
 
