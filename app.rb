@@ -106,13 +106,16 @@ class DfmApp < Sinatra::Base
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
     content_type :json
-    friends.to_a.map{|friend|
+    friends = friends.to_a.map{|friend|
       {
         "id" => friend.identifier,
         "name" => friend.name, 
         "picture" => friend.picture({"&width=" => "34", "&height=" => "34"}),
       }
-    }.to_json
+    }
+    friends.unshift({"id" => user.identifier, "name" => user.name, "picture" => user.picture({"&width=" => "34", "&height=" => "34"})})
+    content_type :json
+    friends.to_json
   end
 
   # アルバムリストを取得
@@ -295,7 +298,7 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/create.json' do
     
-    absences = params[:absences]
+    absences = params[:absences].nil? ? Hash::new : params[:absences]
     session_id = session[:session_id]
     filename = SecureRandom.hex(16)
     url = "/files/#{session_id}/photo_#{filename}.jpg"
@@ -307,7 +310,7 @@ class DfmApp < Sinatra::Base
     if(false)
       photo = Magick::ImageList.new("./public#{params[:photo]}")
 
-      for i in 0..(absences["x"].size-1)
+      for i in 0..(absences["x"].nil? ? -1 : absences["x"].size-1)
         absence = Magick::ImageList.new("./public#{absences["src"][i]}")
         photo = photo.composite(absence, absences["x"][i].to_i, absences["y"][i].to_i, Magick::OverCompositeOp)
       end
@@ -318,7 +321,7 @@ class DfmApp < Sinatra::Base
     else
       photo = Imlib2::Image.load("./public#{params[:photo]}")
 
-      for i in 0..(absences["x"].size-1)
+      for i in 0..(absences["x"].nil? ? -1 : absences["x"].size-1)
         absentee = Imlib2::Image.load("./public#{absences["src"][i]}")
         photo = photo.blend(absentee, 0, 0, absentee.width, absentee.height, absences["x"][i].to_i, absences["y"][i].to_i, absentee.width, absentee.height, false)
       end
@@ -346,11 +349,15 @@ class DfmApp < Sinatra::Base
       tags = Array::new
       
       if(params[:use_tag] == "tag")
-        for i in 0..(params[:id].size-1)
-          tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+        if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
+          for i in 0..(params[:id].size-1)
+            tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+          end
         end
-        for i in 0..(params[:attendee_id].size-1)
-          tags.append(FbGraph::Tag.new(:name => "#{params[:attendee_id][i]}", :x => params[:attendee_x][i], :y => params[:attendee_y][i]))
+        if(!params[:attendee_id].nil? && !params[:attendee_x].nil? && !params[:attendee_y].nil?)
+          for i in 0..(params[:attendee_id].size-1)
+            tags.append(FbGraph::Tag.new(:name => "#{params[:attendee_id][i]}", :x => params[:attendee_x][i], :y => params[:attendee_y][i]))
+          end
         end
       end
 
