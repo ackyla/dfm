@@ -331,6 +331,8 @@ class DfmApp < Sinatra::Base
       photo.save(dir)
     end
 
+    session[:upload_flag] = true;
+
     json = {
       "path" => url,
     }
@@ -342,21 +344,30 @@ class DfmApp < Sinatra::Base
   # 作成した写真をFacebookに投稿する
   # Param:: params[:url](合成写真のurl), params[:name](タグ名), params[:x](タグのx座標), params[:y](タグのy座標), params[:message](コメント)
   post '/upload' do
-    dir = "./public#{params[:url]}"
-    photo = Magick::ImageList.new(dir)
-    tags = Array::new
-    for i in 0..(params[:id].size-1)
-      tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+    if(session[:upload_flag])
+      dir = "./public#{params[:url]}"
+      photo = Magick::ImageList.new(dir)
+      tags = Array::new
+      
+      for i in 0..(params[:id].size-1)
+        tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+      end
+
+      message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
+
+      user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+      user.photo!(:source => File.new(dir), :message => message, :tags => tags)
+    
+      # ファイルを削除
+      #File.delete(session[:path]) if File.exist?(session[:path])
+
+      session[:upload_flag] = false
+      result = "success"
+    else
+      result = "error"
     end
 
-    message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
-
-    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    user.photo!(:source => File.new(dir), :message => message, :tags => tags)
-    
-    # ファイルを削除
-    #File.delete(session[:path]) if File.exist?(session[:path])
-
-    redirect '/finished'
+    content_type :json
+    result.to_json
   end
 end

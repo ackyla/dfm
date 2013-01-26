@@ -547,7 +547,7 @@ function upload() {
 		$.ajax({
 				url: "upload",
 				type: "POST",
-				dataType: "html",
+				dataType: "json",
 				data: {
 						_csrf: window.csrf_token,
 						url: $("#result-image").attr("src"),
@@ -557,8 +557,10 @@ function upload() {
 						y: $(".position-y").map(function(){ return $(this).val(); }).toArray()
 				},
 				async: false,
-				success: function(html){
-						
+				success: function(json){
+						if(json == "success"){
+								location.replace("finished");
+						}
 				}
 		});
 }
