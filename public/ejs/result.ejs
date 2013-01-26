@@ -6,10 +6,10 @@
 		</div>
 		<div class="modal-body">
 			<p onclick="$(this).hide(); $('#message').show(); return false;" style="margin: 10px 0;"><a href="#">コメントを書く</a></p>
+			<textarea id="message" name="message" style="display: none; margin: 10px auto 10px; width: 90%; height: 120px;"></textarea>
 			<label class="checkbox">
 				<input id="use-tag" type="checkbox" checked="checked"/> タグ付けをする
 			</label>
-			<textarea id="message" name="message" style="display: none; margin: 10px auto 10px; width: 90%; height: 120px;"></textarea>
 			<div id="result-container" style="background: whitesmoke;">
 				<img src="<%= source %>" id="result-image" style="display: block; margin: 5px auto;"/>
 			</div>

@@ -6,7 +6,7 @@ $(function(){
 
 		$.ajaxSetup({
 				error: function(XMLHttpRequest, textStatus, errorThrown){
-						$("#communication-error-message").show();
+						$("#communication-error-message").show().delay(2000).fadeOut('slow');
 				}
 		});
 		
@@ -515,21 +515,25 @@ function createPhoto(){
 		var x = $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray();
 		var y = $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray();
 		var absences = {src: src, x: x, y: y};
-		
-		$.ajax({
-				url: "create.json",
-				type: "POST",
-				dataType: "json",
-				data: {
-						_csrf: window.csrf_token,
-						photo: photo,
-						absences: absences
-				},
-				async: false,
-				success: function(json){
-						showResult(json);
-				}
-		});
+
+		if(src.length > 0){
+				$.ajax({
+						url: "create.json",
+						type: "POST",
+						dataType: "json",
+						data: {
+								_csrf: window.csrf_token,
+								photo: photo,
+								absences: absences
+						},
+						async: false,
+						success: function(json){
+								showResult(json);
+						}
+				});
+		}else{
+				$("#create-error-message").show().delay(2000).fadeOut('slow');
+		}
 }
 
 /**
