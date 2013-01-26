@@ -493,8 +493,8 @@ function getPhoto($item) {
 						$photoWrapper.prepend($photo);
 						
 						// 出席者を追加
-						$item.find("[name='tags[]']").each(function(){
-								addAttendee($(this).val());
+						$.each(json["tags"], function(){
+								addAttendee(this["id"]);
 						});
 						
 						// 作成ボタンを有効化

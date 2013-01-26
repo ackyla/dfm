@@ -126,7 +126,6 @@ class DfmApp < Sinatra::Base
         "id" => album.identifier,
         "name" => album.name,
         "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source,
-        "tags" => Array::new
       }
     }
     albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
@@ -144,11 +143,6 @@ class DfmApp < Sinatra::Base
         "id" => photo.identifier,
         "name" => photo.name.nil? ? "無題" : photo.name,
         "source" => photo.source,
-        "tags" => photo.tags.to_a.map{|tag|
-          {
-            "id" => tag.user.identifier
-          }
-        }
       }
     }
     content_type :json
@@ -167,11 +161,6 @@ class DfmApp < Sinatra::Base
         "id" => photo.identifier,
         "name" => photo.name.nil? ? "無題" : photo.name,
         "source" => photo.source,
-        "tags" => photo.tags.to_a.map{|tag|
-          {
-            "id" => tag.user.identifier
-          }
-        }
       }
     }
     content_type :json
@@ -237,7 +226,12 @@ class DfmApp < Sinatra::Base
     res = {
       "source" => url,
       "width" => img.columns,
-      "height" => img.rows
+      "height" => img.rows,
+      "tags" => photo.tags.to_a.map{|tag|
+        {
+          "id" => tag.user.identifier
+        }
+      }
     }
 
     content_type :json
