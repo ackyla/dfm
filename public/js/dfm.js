@@ -555,6 +555,7 @@ function upload() {
 						_csrf: window.csrf_token,
 						url: $("#result-image").attr("src"),
 						message: $("#message").val(),
+						use_tag: $("#use-tag").attr("checked") ? "tag" : "",
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
 						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
 						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
