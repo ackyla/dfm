@@ -348,9 +348,10 @@ function updateClosely(id, absentees, attendees, operator) {
 /**
  * 出席者を追加する
  */
-function addAttendee(id) {
+function addAttendee(tag) {
+		var id = tag["id"]
 		var $photoInner = $("#photo-inner");
-		var $attendee = $("<input type='hidden' name='tags[]' value="+id+" />");
+		var $attendee = $("<input>", { type: "hidden", name: "tags[]" }).attr("pos-x", tag["x"]).attr("pos-y", tag["y"]).addClass("attendee-tag").val(id);
 		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
 		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
 
@@ -494,7 +495,7 @@ function getPhoto($item) {
 						
 						// 出席者を追加
 						$.each(json["tags"], function(){
-								addAttendee(this["id"]);
+								addAttendee(this);
 						});
 						
 						// 作成ボタンを有効化
@@ -554,7 +555,10 @@ function upload() {
 						message: $("#message").val(),
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
 						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
-						y: $(".position-y").map(function(){ return $(this).val(); }).toArray()
+						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
+						attendee_id: $(".attendee-tag").map(function(){ return $(this).val(); }).toArray(),
+						attendee_x: $(".attendee-tag").map(function(){ return $(this).attr("pos-x"); }).toArray(),
+						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray()
 				},
 				async: false,
 				success: function(json){

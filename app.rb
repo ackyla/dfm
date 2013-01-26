@@ -229,7 +229,9 @@ class DfmApp < Sinatra::Base
       "height" => img.rows,
       "tags" => photo.tags.to_a.map{|tag|
         {
-          "id" => tag.user.identifier
+          "id" => tag.user.identifier,
+          "x" => tag.x,
+          "y" => tag.y
         }
       }
     }
@@ -345,6 +347,9 @@ class DfmApp < Sinatra::Base
       
       for i in 0..(params[:id].size-1)
         tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+      end
+      for i in 0..(params[:attendee_id].size-1)
+        tags.append(FbGraph::Tag.new(:name => "#{params[:attendee_id][i]}", :x => params[:attendee_x][i], :y => params[:attendee_y][i]))
       end
 
       message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
