@@ -175,7 +175,7 @@ class DfmApp < Sinatra::Base
   # 欠席者の写真を取得
   # Param:: params[:id](欠席者のFacebookID)
   # Return:: json
-  post '/absence.json' do
+  post '/absentee.json' do
     id = params[:id]
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
     fb_url = user.raw_attributes["picture"]["data"]["url"]
@@ -185,10 +185,10 @@ class DfmApp < Sinatra::Base
     dir = "./public#{url}"
 
     begin
-      absence = Magick::ImageList.new(fb_url)
+      absentee = Magick::ImageList.new(fb_url)
       mask = Magick::ImageList.new("./masks/mask_oval.png")
       mask.alpha = Magick::ActivateAlphaChannel
-      masked = mask.composite(absence[0], 0, 0, Magick::SrcInCompositeOp)
+      masked = mask.composite(absentee[0], 0, 0, Magick::SrcInCompositeOp)
 
 =begin
       masked.background_color = "black"

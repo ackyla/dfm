@@ -366,9 +366,23 @@ function addAttendee(tag) {
  * 欠席者を追加する
  */
 function addAbsentee(id) {
+
+		// 既に追加されている欠席者と出席者を取得
+		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+		
+		// 欠席者を追加
+		var $absentee = $(new EJS({
+				url: "ejs/absence.ejs"
+		}).render({ id: id }));
+		$("#absence-container").prepend($absentee);
+
+		// 友達リストをソート
+		updateClosely(id, absentees, attendees, -1);
+		
 		// 欠席者の写真を取得
 		$.ajax({
-				url: "absence.json",
+				url: "absentee.json",
 				type: "POST",
 				dataType: "json",
 				data: {
@@ -376,20 +390,13 @@ function addAbsentee(id) {
 						id: id
 				},
 				success: function(json){
-						// 欠席者取得
-						var $absence = $(new EJS({
-								url: "ejs/absence.ejs"
-						}).render({ picture: json["source"], id: id }));
-						var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
-						var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
-						
-						// ajax
-						updateClosely(id, absentees, attendees, -1);
-						
-						$("#absence-container").prepend($absence);
+
+						// 追加していたフレームに写真を表示する
+						$absentee.find(".absence-image").attr("src", json["source"]).show();
+						$absentee.find(".loading-absence-image").remove();
 						
 						// ドラッガブル
-						$absence.draggable({
+						$absentee.draggable({
 								drag: function(){
 										$(this).find("input.position-x").val($(this).css("left"));
 										$(this).find("input.position-y").val($(this).css("top"));
@@ -397,12 +404,12 @@ function addAbsentee(id) {
 						});
 						
 						// セレクト(仮)
-						$absence.find(".absence-image-wrapper").click(function(){
+						$absentee.find(".absence-image-wrapper").click(function(){
 								$(this).toggleClass('selected');
 						});
 						
 						// 閉じる
-						$absence.find(".close-button").click(function(){
+						$absentee.find(".close-button").show().click(function(){
 								showFriend(id);
 								removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
 								return false;
@@ -511,9 +518,9 @@ function getPhoto($item) {
  */
 function createPhoto(){
 		var photo = $("#photo-container [name='photo']").val();
-		var src = $("#photo-container [name='absence[src][]']").map(function(){ return $(this).val(); }).toArray();
-		var x = $("#photo-container [name='absence[x][]']").map(function(){ return $(this).val(); }).toArray();
-		var y = $("#photo-container [name='absence[y][]']").map(function(){ return $(this).val(); }).toArray();
+		var src = $("#photo-container .absence-image").map(function(){ return $(this).attr("src"); }).toArray();
+		var x = $("#photo-container .position-x").map(function(){ return $(this).val(); }).toArray();
+		var y = $("#photo-container .position-y").map(function(){ return $(this).val(); }).toArray();
 		var absences = {src: src, x: x, y: y};
 
 		if(src.length > 0){
