@@ -186,9 +186,12 @@ class DfmApp < Sinatra::Base
 
     begin
       absentee = Magick::ImageList.new(fb_url)
+      if(absentee.columns != 100 || absentee.rows != 120)
+        absentee = absentee.resize_to_fill(100, 120)
+      end
       mask = Magick::ImageList.new("./masks/mask_oval.png")
       mask.alpha = Magick::ActivateAlphaChannel
-      masked = mask.composite(absentee[0], 0, 0, Magick::SrcInCompositeOp)
+      masked = mask.composite(absentee, 0, 0, Magick::SrcInCompositeOp)
 
 =begin
       masked.background_color = "black"
