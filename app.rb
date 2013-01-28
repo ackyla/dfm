@@ -58,6 +58,15 @@ class DfmApp < Sinatra::Base
       redirect '/auth'
     end
 
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
+
+    begin
+      me = FbGraph::User.me session[:token] 
+      me.fetch
+    rescue
+      redirect '/auth'
+    end
+    
     @page_name = "写真作成 | "
     @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
     erb :edit

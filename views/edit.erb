@@ -4,53 +4,56 @@
 	</div>
 	/LEFT -->
 	<!-- MAIN -->
-	<div id="main" class="span12" style="border: 1px solid black;">
-		<!-- FRAME-LIST -->
+	<div id="main" class="span12">
+		<!-- FRAME-LIST
 		<div id="frame-container" style="display: block; margin: 10px; padding: 5px; height: 130px; border: 1px solid black; overflow-x: scroll; white-space: nowrap;">
-			<!-- FRAME.EJS -->
 		</div>
-		<!-- /FRAME-LIST -->
+		/FRAME-LIST -->
 		<!-- PHOTO -->
-		<form method="post" id="form" action="/create" style="margin: 0;">
-			<div id="photo-container" style="display: block; margin: 10px; padding: 9px; border: 1px solid black;">
-				<div id="photo-nav" style="display: block; border: 1px solid black; position: relative;">
-					<div id="photo-nav-inner" style="padding: 5px 20px; position: relative; line-height: 38px;">
-						<div style="float: right;">
-							<button id="return-button" type="button" class="btn" onclick="showAlbums(); return false;" disabled="disabled"><i class="icon-arrow-left"></i> 戻る</button>
-							<button id="create-button" type="button" class="btn btn-primary" onclick="createPhoto(); return false;" disabled="disabled"><i class="icon-ok icon-white"></i> 作成する</button>
-						</div>
-						<div>
-							<h4 id="navi-message">アルバムを選択</h4>
-						</div>
-						<p style="clear: right;"></p>
+		<div id="photo-container">
+			<div id="photo-nav">
+				<div id="photo-nav-inner" class="clearfix">
+					<div class="pull-right">
+						<button id="return-button" type="button" class="btn" onclick="showAlbums(); return false;" disabled="disabled"><i class="icon-arrow-left"></i> 戻る</button>
+						<button id="create-button" type="button" class="btn btn-primary" onclick="createPhoto(); return false;" disabled="disabled"><i class="icon-ok icon-white"></i> 作成する</button>
 					</div>
-				</div>
-				<div id="photo-select-wrapper" style="display: block; border: 1px solid black; position: relative;">
-					<div id="photo-select-inner" style="padding: 9px 9px; position: relative;">
-						<img id="loading-albums" src="img/loading.gif" style="display: none; margin: 20px auto;">
-						<img id="loading-photos" src="img/loading.gif" style="display: none; margin: 20px auto;">
-						<div id="album-item-container">
-						</div>
-						<div id="photo-item-container" style="display: none;">
-						</div>
+					<div>
+						<h4 id="navi-message">アルバムを選択</h4>
 					</div>
-				</div>
-				<div id="photo-wrapper" style="display: none; border: 1px solid black; background: url(img/transparent.png); padding: 9px 9px;">
-					<img id="loading-photo" src="img/loading.gif" style="display: none; margin: 20px auto;">
-					<!-- PHOTO.EJS -->
 				</div>
 			</div>
-		</form>
+			<div id="photo-select-wrapper">
+				<div id="photo-select-inner">
+					<img id="loading-albums" src="img/loading.gif" style="display: none; margin: 20px auto;">
+					<img id="loading-photos" src="img/loading.gif" style="display: none; margin: 20px auto;">
+					<div id="album-item-container">
+					</div>
+					<div id="photo-item-container" style="display: none;">
+					</div>
+				</div>
+			</div>
+			<div id="photo-wrapper" style="display: none;">
+				<img id="loading-photo" src="img/loading.gif" style="display: none; margin: 20px auto;">
+				<!-- PHOTO.EJS -->
+			</div>
+		</div>
 		<!-- /PHOTO -->
 	</div>
 	<!-- /MAIN -->
 	<!-- RIGHT -->
-	<div id="side-right" class="span4" style="border: 1px solid black; height: 732px;">
-		<div id="side-right-inner" style="display: block; margin: 10px; padding: 5px; height: 700px; border: 1px solid black; overflow-y: scroll;">
-			<img id="loading-friends" src="img/loading.gif" style="display: none; margin: 5px auto;"/>
-			<div id="sorting-friends" class="alert alert-info" style="display: none;"><strong>Now sorting...</strong></div>
-			<div id="friend-item-container">
-				<!-- FRIEND.EJS -->
+	<div id="side-right" class="span4">
+		<div id="friend-list-container">
+			<div id="friend-list-nav">
+				<div id="friend-list-nav-inner">
+					<h4>友達リスト</h4>
+				</div>
+			</div>
+			<div id="friend-item-container-wrapper">
+				<img id="loading-friends" src="img/loading.gif" style="display: none; margin: 5px auto;"/>
+				<div id="sorting-friends" class="alert alert-info" style="display: none;"><strong>Now sorting...</strong></div>
+				<div id="friend-item-container">
+					<!-- FRIEND.EJS -->
+				</div>				
 			</div>
 		</div>
 	</div>
