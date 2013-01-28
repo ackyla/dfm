@@ -67,6 +67,10 @@ class DfmApp < Sinatra::Base
       redirect '/auth'
     end
     
+    if(!me.permissions.include?(:user_photos) || !me.permissions.include?(:friends_photos))
+      redirect '/auth'
+    end
+
     @page_name = "写真作成 | "
     @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
     erb :edit
