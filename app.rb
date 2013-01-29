@@ -18,7 +18,7 @@ class DfmApp < Sinatra::Base
     #:domain => 't-forget.me',
     #:path => '/',
     :expire_after => 3600,
-    :secret => SecureRandom.hex(32)
+    :secret => 'hoge'#SecureRandom.hex(32)
     use Rack::Csrf, :raise => true
   end
 
@@ -53,6 +53,7 @@ class DfmApp < Sinatra::Base
   end
 
   get '/edit' do
+
     # セッションのチェック
     if session[:token].nil?
       redirect '/auth'
@@ -121,7 +122,6 @@ class DfmApp < Sinatra::Base
   post '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP"})
-    content_type :json
     friends = friends.to_a.map{|friend|
       {
         "id" => friend.identifier,
