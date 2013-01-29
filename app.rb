@@ -14,11 +14,11 @@ class DfmApp < Sinatra::Base
   configure do
     APP_KEY, APP_SECRET = File.open(".key").read.split
     use Rack::Session::Cookie,
-    #:key => 'dfm.session',
+    :key => 'dfm.session',
     #:domain => 't-forget.me',
     #:path => '/',
     :expire_after => 3600,
-    :secret => 'hogehoge'
+    :secret => SecureRandom.hex(32)
     use Rack::Csrf, :raise => true
   end
 
