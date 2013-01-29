@@ -1,8 +1,4 @@
-var csrf_token;
-
 $(function(){
-
-		window.csrf_token = $("[name='_csrf']").val();
 
 		$.ajaxSetup({
 				error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -85,9 +81,6 @@ function getFriends() {
 				url: "friends.json",
 				type: "POST",
 				dataType: "json",
-				data: {
-						_csrf: window.csrf_token
-				},
 				success: function(json){
 						var $friends = $(new EJS({
 								url: "ejs/friend.ejs"
@@ -183,9 +176,6 @@ function getAlbums() {
 				url: "albums.json",
 				type: "POST",
 				dataType: "json",
-				data: {
-						_csrf: window.csrf_token
-				},
 				success: function(json){
 						var $albums = $(new EJS({
 								url: "ejs/isotope_item.ejs"
@@ -253,9 +243,6 @@ function getPhotos(id) {
 						url: "tagged_photos.json",
 						type: "POST",
 						dataType: "json",
-						data: {
-								_csrf: window.csrf_token
-						},
 						success: function(json){
 								var $photo = $(new EJS({
 										url: "ejs/isotope_item.ejs"
@@ -285,7 +272,6 @@ function getPhotos(id) {
 						type: "POST",
 						dataType: "json",
 						data: {
-								_csrf: window.csrf_token,
 								id: id
 						},
 						success: function(json){
@@ -327,7 +313,6 @@ function updateClosely(id, absentees, attendees, operator) {
 				type: "POST",
 				dataType: "json",
 				data: {
-						_csrf: window.csrf_token,
 						id: id,
 						absences: absentees,
 						tags: attendees
@@ -386,7 +371,6 @@ function addAbsentee(id) {
 				type: "POST",
 				dataType: "json",
 				data: {
-						_csrf: window.csrf_token,
 						id: id
 				},
 				success: function(json){
@@ -478,7 +462,6 @@ function getPhoto($item) {
 				type: "POST",
 				dataType: "json",
 				data: {
-						_csrf: window.csrf_token,
 						id: id
 				},
 				success: function(json){
@@ -529,7 +512,6 @@ function createPhoto(){
 						type: "POST",
 						dataType: "json",
 						data: {
-								_csrf: window.csrf_token,
 								photo: photo,
 								absences: absences
 						},
@@ -563,7 +545,6 @@ function upload() {
 				type: "POST",
 				dataType: "json",
 				data: {
-						_csrf: window.csrf_token,
 						url: $("#result-image").attr("src"),
 						message: $("#message").val(),
 						use_tag: $("#use-tag").attr("checked") ? "tag" : "",

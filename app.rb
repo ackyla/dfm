@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'sinatra/base'
-require 'rack/csrf'
+require 'rack/protection'
 require 'fb_graph'
 require 'json'
 require 'RMagick'
@@ -19,18 +19,10 @@ class DfmApp < Sinatra::Base
     #:path => '/',
     :expire_after => 3600,
     :secret => 'hoge'#SecureRandom.hex(32)
-    use Rack::Csrf, :raise => true
+    use Rack::Protection
   end
 
   helpers do
-    def csrf_token
-      Rack::Csrf.csrf_token(env)
-    end
-    
-    def csrf_tag
-      Rack::Csrf.csrf_tag(env)
-    end
-
     def app_key
       APP_KEY
     end
