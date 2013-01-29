@@ -54,11 +54,6 @@ class DfmApp < Sinatra::Base
     erb :index
   end
 
-  get '/session' do
-    session[:session_id]
-    #"#{session[:token]}\n#{session.empty?}"
-  end
-
   get '/edit' do
 
     # セッションのチェック
