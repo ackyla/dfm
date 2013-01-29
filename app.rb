@@ -30,6 +30,14 @@ class DfmApp < Sinatra::Base
     def csrf_tag
       Rack::Csrf.csrf_tag(env)
     end
+
+    def app_key
+      APP_KEY
+    end
+
+    def site_url
+      "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "")
+    end
   end
 
   error do
@@ -43,7 +51,6 @@ class DfmApp < Sinatra::Base
   get '/' do
     @page_name = ""
     @page_js = "<script type='text/javascript' src='js/index.js'></script>"
-    @app_key = APP_KEY
     erb :index
   end
 
@@ -74,13 +81,11 @@ class DfmApp < Sinatra::Base
 
     @page_name = "写真作成 | "
     @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
-    @app_key = APP_KEY
     erb :edit
   end
   
   get '/finished' do
     @page_name = "投稿完了 | "
-    @app_key = APP_KEY
     erb :finished
   end
 
