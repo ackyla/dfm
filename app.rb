@@ -73,6 +73,7 @@ class DfmApp < Sinatra::Base
 
     @page_name = "写真作成 | "
     @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
+    @app_key = APP_KEY
     erb :edit
   end
   
