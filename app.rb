@@ -18,7 +18,7 @@ class DfmApp < Sinatra::Base
     #:domain => 't-forget.me',
     #:path => '/',
     :expire_after => 3600,
-    :secret => 'hoge'#SecureRandom.hex(32)
+    :secret => "hoge"
     use Rack::Protection
   end
 
@@ -53,7 +53,7 @@ class DfmApp < Sinatra::Base
       redirect '/auth'
     end
 
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
 
     begin
       me = FbGraph::User.me session[:token] 
@@ -78,19 +78,20 @@ class DfmApp < Sinatra::Base
 
   #facebook認証
   get '/auth' do
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
     redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos, :photo_upload])
   end
 
   #facebook認証のコールバック
   get '/auth/callback' do
+
     #facebookからのcodeが無かったらトップに戻る
     if params[:code].nil?
       redirect '/'
     end
 
     #codeをセット
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}:#{request.port}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
     client = auth.client
     client.authorization_code = params[:code]
     
