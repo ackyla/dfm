@@ -61,3 +61,24 @@
 	padding: 5px;
 	overflow-y: scroll;
 }
+
+.friend-wrapper {
+	width: 100%;
+	margin-bottom: 5px;
+	overflow-x: hidden;
+	white-space: nowrap;
+}
+
+.friend-wrapper:hover {
+	background: #F8F8FF;
+}
+
+.friend-wrapper .profile-picture {
+	width: 34px;
+	height: 34px;
+	margin-right: 5px;
+}
+
+.friend-wrapper .name {
+	line-height: 34px;
+}

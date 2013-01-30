@@ -1,8 +1,8 @@
 <% for(var i=0; i < friends.length; i ++) { %>
-<div data-id="<%= friends[i]['id'] %>" data-closely="1000000" class="item friend-wrapper active" style="margin-bottom: 5px; overflow-x: hidden; white-space: nowrap;">
-	<a href="#">
-		<img src="<%= friends[i]['picture'] %>" style="width: 34px; height: 34px; margin-right: 5px;">
-		<span><%= friends[i]['name'] %></span>
+<div data-id="<%= friends[i]['id'] %>" data-closely="1000000" class="item friend-wrapper active">
+	<a class="clearfix" href="#">
+		<img class="pull-left profile-picture" src="<%= friends[i]['picture'] %>">
+		<div class="name"><%= friends[i]['name'] %></div>
 	</a>
 </div>
 <% } %>
