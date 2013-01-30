@@ -18,7 +18,7 @@ class DfmApp < Sinatra::Base
     #:domain => 't-forget.me',
     #:path => '/',
     :expire_after => 3600,
-    :secret => "hoge"
+    :secret => File.open(".secret").read.split.to_s
     use Rack::Protection
   end
 
