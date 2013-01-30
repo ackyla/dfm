@@ -551,7 +551,7 @@ function upload() {
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
 						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
 						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
-						Attendee_id: $(".attendee-tag").map(function(){ return $(this).val(); }).toArray(),
+						attendee_id: $(".attendee-tag").map(function(){ return $(this).val(); }).toArray(),
 						attendee_x: $(".attendee-tag").map(function(){ return $(this).attr("pos-x"); }).toArray(),
 						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray()
 				},
