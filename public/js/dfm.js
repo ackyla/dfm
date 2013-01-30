@@ -384,7 +384,8 @@ function addAbsentee(id) {
 								drag: function(){
 										$(this).find("input.position-x").val($(this).css("left"));
 										$(this).find("input.position-y").val($(this).css("top"));
-								}
+								},
+								grid: [5, 5]
 						});
 						
 						// セレクト(仮)
