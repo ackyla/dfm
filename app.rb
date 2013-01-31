@@ -155,10 +155,12 @@ class DfmApp < Sinatra::Base
   end
 
   # 自分のタグが付いた写真を取得
+  # Param:: params[:offset](オフセット)
   # Return:: json
   post '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    photos = user.photos({"type" => "tagged"})
+    photos = user.photos({"type" => "tagged", "offset" => params[:offset]})
+    offset = photos.next.empty? ? nil : (params[:offset].to_i + photos.count)
     photos = photos.to_a.map{|photo|
       {
         "id" => photo.identifier,
@@ -166,26 +168,37 @@ class DfmApp < Sinatra::Base
         "source" => photo.source,
       }
     }
+
+    response = {
+      "photos" => photos,
+      "offset" => offset,
+    }
     content_type :json
-    photos.to_json
+    response.to_json
   end
 
   # アルバムの写真を取得
-  # Param:: params[:id](アルバムID)
+  # Param:: params[:id](アルバムID), params[:offset](オフセット)
   # Return:: json
   post '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
-    
-    photos = album.photos.to_a.map{|photo|
+    photos = album.photos({"offset" => params[:offset]})
+    offset = photos.next.empty? ? nil : (params[:offset].to_i + photos.count)
+    photos = photos.to_a.map{|photo|
       {
         "id" => photo.identifier,
         "name" => photo.name.nil? ? "無題" : photo.name,
         "source" => photo.source,
       }
     }
+
+    response = {
+      "photos" => photos,
+      "offset" => offset,
+    }
     content_type :json
-    photos.to_json
+    response.to_json
   end
 
   # 欠席者の写真を取得

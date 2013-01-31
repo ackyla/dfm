@@ -158,7 +158,10 @@ function showAlbums() {
 		$('#album-item-container').isotope('reLayout');
 		$('#photo-item-container').hide();
 		$('#photo-wrapper').hide();
-		
+		$("#load-next-photos-button").hide();
+		if($("#albums-offset").val() != "0"){
+				$("#load-next-albums-button").show();
+		}
 		return false;
 }
 
@@ -186,11 +189,12 @@ function getAlbums(offset) {
 
 						// 読み込みボタンを表示
 						if(json["offset"]){
-								$("#offset").val(json["offset"]);
-								$("#load-next-button").show();
+								$("#albums-offset").val(json["offset"]);
+								$("#load-next-albums-button").show();
 						}else{
-								$("#offset").val("0");
-								$("#load-next-button").hide();
+								// 次がない時は非表示
+								$("#albums-offset").val("0");
+								$("#load-next-albums-button").hide();
 						}
 						
 						// ローディングアニメーション消去
@@ -201,15 +205,31 @@ function getAlbums(offset) {
 
 						// クリックされた時の動作を設定
 						$albums.click(function(){
+								var $photoContainer = $("#photo-item-container");
+								
+								// ナビメッセージを変更
+								$("#navi-message").text("写真を選択");
+								
+								// 読み込みボタンを非表示
+								$("#load-next-albums-button").hide();
+
+								// 写真読み込みボタンのアルバムIDを変更
+								$("#load-next-photos-button").attr("onClick", "getNextPhotos("+$(this).attr("data-id")+")");
+
+								$("#album-item-container").hide();
+								$photoContainer.show();
+								
 								if($(this).hasClass("clicked")){
 										// 1回クリックされたアルバムは写真リストを取得しない
 										showPhotos($(this).attr("data-id"));
 										// 戻るボタンを有効化
-								$("#return-button").removeAttr("disabled");
+										$("#return-button").removeAttr("disabled");
 								}else{
+										// 写真を非表示
+										$photoContainer.isotope({ filter: ":not(.item)" });
 										// アルバムIDを使用して写真リストを取得する
 										$(this).addClass("clicked");
-										getPhotos($(this).attr("data-id"));
+										getPhotos($(this).attr("data-id"), 0);
 								}
 								return false;
 						});
@@ -218,41 +238,32 @@ function getAlbums(offset) {
 }
 
 function getNextAlbums() {
-		getAlbums($("#offset").val());
+		$("#load-next-albums-button").hide();
+		getAlbums($("#albums-offset").val());
 		return false;
 }
-
 
 /**
  * 写真を表示する
  */
 function showPhotos(id) {
-		var $albumContainer = $("#album-item-container");
-		var $photoContainer = $("#photo-item-container");
+		// 読み込みボタンを表示する
+		if($("[album-id="+id+"].photos-offset").length){
+				if($("[album-id="+id+"].photos-offset").val() != "0"){
+						$("#load-next-photos-button").show();
+				}
+		}
 
-		// ナビメッセージを変更
-		$("#navi-message").text("写真を選択");
-		
-		$albumContainer.hide();
-		$photoContainer.show();
-
-		$photoContainer.isotope({ filter: ".album-"+id });
+		// album-idでフィルタリングする
+		$("#photo-item-container").isotope({ filter: ".album-"+id });
 }
 
 /**
  * 写真を取得する
  */
-function getPhotos(id) {
-		var $albumContainer = $("#album-item-container");
+function getPhotos(id, offset) {
 		var $photoContainer = $("#photo-item-container");
 
-		// ナビメッセージを変更
-		$("#navi-message").text("写真を選択");
-		
-		$albumContainer.hide();
-		$photoContainer.show();
-		$photoContainer.isotope({ filter: ":not(.item)" });
-		
 		// ローディングアニメーション表示
 		$("#loading-photos").show();
 		
@@ -261,13 +272,30 @@ function getPhotos(id) {
 						url: "tagged_photos.json",
 						type: "POST",
 						dataType: "json",
+						data: {
+								offset: offset
+						},
 						success: function(json){
 								var $photo = $(new EJS({
 										url: "ejs/isotope_item.ejs"
-								}).render({ items: json }));
+								}).render({ items: json["photos"] }));
 								$photo.each(function(){
 										$(this).addClass("album-"+id);
 								});
+
+								// 読み込みボタンを表示
+								if(json["offset"]){
+										if($("[album-id='"+id+"'].photos-offset").length){
+												$("[album-id='"+id+"'].photos-offset").val(json["offset"]);
+										}else{
+												$("#load-next-button-wrapper").append($("<input>", { type: "hidden" }).addClass("photos-offset").attr("album-id", id).val(json["offset"]));
+										}
+										$("#load-next-photos-button").show();
+								}else{
+										// 次がない時は非表示
+										$("#load-next-photos-button").hide();
+										$("[album-id='"+id+"'].photos-offset").val(0);
+								}
 								
 								// 戻るボタンを有効化
 								$("#return-button").removeAttr("disabled");
@@ -290,15 +318,30 @@ function getPhotos(id) {
 						type: "POST",
 						dataType: "json",
 						data: {
-								id: id
+								id: id,
+								offset: offset
 						},
 						success: function(json){
 								var $photo = $(new EJS({
 										url: "ejs/isotope_item.ejs"
-								}).render({ items: json }));
+								}).render({ items: json["photos"] }));
 								$photo.each(function(){
 										$(this).addClass("album-"+id);
 								});
+
+								// 読み込みボタンを表示
+								if(json["offset"]){
+										if($("[album-id='"+id+"'].photos-offset").length){
+												$("[album-id='"+id+"'].photos-offset").val(json["offset"]);
+										}else{
+												$("#load-next-button-wrapper").append($("<input>", { type: "hidden" }).addClass("photos-offset").attr("album-id", id).val(json["offset"]));
+										}
+										$("#load-next-photos-button").show();
+								}else{
+										// 次がない時は非表示
+										$("#load-next-photos-button").hide();
+										$("[album-id='"+id+"'].photos-offset").val(0);
+								}
 								
 								// 戻るボタンを有効化
 								$("#return-button").removeAttr("disabled");
@@ -316,6 +359,12 @@ function getPhotos(id) {
 						}
 				});
 		}
+}
+
+function getNextPhotos(id) {
+		$("#load-next-photos-button").hide();
+		getPhotos(id, $("[album-id="+id+"].photos-offset").val());
+		return false;
 }
 
 /**
