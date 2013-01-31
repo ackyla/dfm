@@ -53,7 +53,7 @@ class DfmApp < Sinatra::Base
       redirect '/auth'
     end
 
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
 
     begin
       me = FbGraph::User.me session[:token] 
@@ -78,7 +78,7 @@ class DfmApp < Sinatra::Base
 
   #facebook認証
   get '/auth' do
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
     redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos, :photo_upload])
   end
 
@@ -91,7 +91,7 @@ class DfmApp < Sinatra::Base
     end
 
     #codeをセット
-    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}/auth/callback"
+    auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
     client = auth.client
     client.authorization_code = params[:code]
     
