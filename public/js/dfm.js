@@ -3,7 +3,8 @@ $(function(){
 		$.ajaxSetup({
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 						$("#communication-error-message").show().delay(2000).fadeOut('slow');
-				}
+				},
+				cache: false
 		});
 		
 		// isotopeを初期化

@@ -67,7 +67,7 @@ class DfmApp < Sinatra::Base
     end
 
     @page_name = "写真作成 | "
-    @page_js = "<script type='text/javascript' src='js/dfm.js'></script>"
+    @page_js = "<script type='text/javascript' src='js/dfm.js' charset='utf-8'></script>"
     erb :edit
   end
   
@@ -123,7 +123,7 @@ class DfmApp < Sinatra::Base
       }
     }
     friends.unshift({"id" => user.identifier, "name" => user.name, "picture" => user.picture({"&width=" => "34", "&height=" => "34"})})
-    content_type :json
+    content_type "application/json; charset=utf-8"
     friends.to_json
   end
 
@@ -150,7 +150,7 @@ class DfmApp < Sinatra::Base
       "albums" => albums,
       "offset" => offset,
     }
-    content_type :json
+    content_type "application/json; charset=utf-8"
     response.to_json
   end
 
@@ -173,7 +173,7 @@ class DfmApp < Sinatra::Base
       "photos" => photos,
       "offset" => offset,
     }
-    content_type :json
+    content_type "application/json; charset=utf-8"
     response.to_json
   end
 
@@ -197,7 +197,7 @@ class DfmApp < Sinatra::Base
       "photos" => photos,
       "offset" => offset,
     }
-    content_type :json
+    content_type "application/json; charset=utf-8"
     response.to_json
   end
 
@@ -231,10 +231,10 @@ class DfmApp < Sinatra::Base
       masked.write(dir)
       
       picture = {"source" => url}
-      content_type :json
+      content_type "application/json; charset=utf-8"
       picture.to_json
     rescue => exc
-      content_type :json
+      content_type "application/json; charset=utf-8"
       exc.to_json
     end
   end
@@ -273,7 +273,7 @@ class DfmApp < Sinatra::Base
       }
     }
 
-    content_type :json
+    content_type "application/json; charset=utf-8"
     res.to_json
   end
 
@@ -323,7 +323,7 @@ class DfmApp < Sinatra::Base
       }
     }
 
-    content_type :json
+    content_type "application/json; charset=utf-8"
     closely.to_json
   end
 
@@ -368,7 +368,7 @@ class DfmApp < Sinatra::Base
       "path" => url,
     }
 
-    content_type :json
+    content_type "application/json; charset=utf-8"
     json.to_json
   end
 
@@ -402,7 +402,7 @@ class DfmApp < Sinatra::Base
 
     result = "success"
 
-    content_type :json
+    content_type "application/json; charset=utf-8"
     result.to_json
   end
 end
