@@ -623,11 +623,20 @@ function upload() {
 						attendee_x: $(".attendee-tag").map(function(){ return $(this).attr("pos-x"); }).toArray(),
 						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray()
 				},
-				async: false,
 				success: function(json){
 						if(json == "success"){
 								location.replace("finished");
 						}
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+						$("#communication-error-message").show().delay(2000).fadeOut('slow');
+						$(".modal-backdrop").fadeOut(function(){ $(this).remove(); });
+						$("#modal-container").fadeOut(function(){ $(this).remove(); });
+				},
+				beforeSend: function(){
+						$(".modal-backdrop").unbind();
+						$(".modal-footer").empty();
+						$(".modal-footer").append($("<strong>").text("投稿しています、しばらくお待ち下さい…"));
 				}
 		});
 }
