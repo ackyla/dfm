@@ -114,12 +114,12 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    friends = user.friends({"locale" => "ja_JP"})
+    friends = user.friends({"locale" => "ja_JP", :fields => "id, name, picture.width(34).height(34)"})
     friends = friends.to_a.map{|friend|
       {
         "id" => friend.identifier,
         "name" => friend.name, 
-        "picture" => friend.picture({"&width=" => "34", "&height=" => "34"}),
+        "picture" => friend.picture
       }
     }
     friends.unshift({"id" => user.identifier, "name" => user.name, "picture" => user.picture({"&width=" => "34", "&height=" => "34"})})
@@ -132,17 +132,17 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset]})
+    albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
     offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
     albums = albums.to_a.map{|album|
       {
         "id" => album.identifier,
         "name" => album.name,
-        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source,
+        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source,
       }
     }
     if(params[:offset].to_i == 0)
-      tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
+      tagged = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})[0].source
       albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
     end
 
@@ -159,7 +159,7 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    photos = user.photos({"type" => "tagged", "offset" => params[:offset]})
+    photos = user.photos({"type" => "tagged", "offset" => params[:offset], :fields => "id, name, source"})
     offset = photos.next.empty? ? nil : (params[:offset].to_i + photos.count)
     photos = photos.to_a.map{|photo|
       {
@@ -183,7 +183,7 @@ class DfmApp < Sinatra::Base
   post '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
-    photos = album.photos({"offset" => params[:offset]})
+    photos = album.photos({"offset" => params[:offset], :fields => "id, name, source"})
     offset = photos.next.empty? ? nil : (params[:offset].to_i + photos.count)
     photos = photos.to_a.map{|photo|
       {
@@ -244,7 +244,7 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/photo.json' do
     id = params[:id]
-    photo = FbGraph::Photo.new(id, :access_token => session[:token]).fetch
+    photo = FbGraph::Photo.new(id, :access_token => session[:token]).fetch({:fields => "source, tags"})
     session_id = session[:session_id]
 
     fb_url = photo.source
