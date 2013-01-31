@@ -24,11 +24,15 @@
 			</div>
 			<div id="photo-select-wrapper">
 				<div id="photo-select-inner">
-					<img id="loading-albums" src="img/loading.gif" style="display: none; margin: 20px auto;">
-					<img id="loading-photos" src="img/loading.gif" style="display: none; margin: 20px auto;">
 					<div id="album-item-container">
 					</div>
 					<div id="photo-item-container" style="display: none;">
+					</div>
+					<img id="loading-albums" src="img/loading.gif" style="display: none; margin: 20px auto;">
+					<img id="loading-photos" src="img/loading.gif" style="display: none; margin: 20px auto;">
+					<div id="load-next-button-wrapper">
+						<button id="load-next-button" class="btn" style="display:none; width: 100%;" onClick="getNextAlbums();">もっと読み込む</button>
+						<input id="offset" value="0" type="hidden">
 					</div>
 				</div>
 			</div>

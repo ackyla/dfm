@@ -13,7 +13,7 @@ $(function(){
 		//getFrames();
 		
 		// アルバムを取得
-		getAlbums();
+		getAlbums("0");
 
 		// 友達を取得
 		getFriends();
@@ -165,7 +165,7 @@ function showAlbums() {
 /**
  * アルバムリストを取得する
  */
-function getAlbums() {
+function getAlbums(offset) {
 		var $albumContainer = $("#album-item-container");
 
 		// ローディングアニメーション表示
@@ -176,17 +176,29 @@ function getAlbums() {
 				url: "albums.json",
 				type: "POST",
 				dataType: "json",
+				data: {
+						offset: offset
+				},
 				success: function(json){
 						var $albums = $(new EJS({
 								url: "ejs/isotope_item.ejs"
-						}).render({ items: json }));
+						}).render({ items: json["albums"] }));						
+
+						// 読み込みボタンを表示
+						if(json["offset"]){
+								$("#offset").val(json["offset"]);
+								$("#load-next-button").show();
+						}else{
+								$("#offset").val("0");
+								$("#load-next-button").hide();
+						}
 						
 						// ローディングアニメーション消去
 						$("#loading-albums").hide();
 						
 						// isotopeにアルバムリストを挿入
 						$albumContainer.isotope("insert", $albums);
-						
+
 						// クリックされた時の動作を設定
 						$albums.click(function(){
 								if($(this).hasClass("clicked")){
@@ -204,6 +216,12 @@ function getAlbums() {
 				}
 		});
 }
+
+function getNextAlbums() {
+		getAlbums($("#offset").val());
+		return false;
+}
+
 
 /**
  * 写真を表示する

@@ -128,11 +128,12 @@ class DfmApp < Sinatra::Base
   end
 
   # アルバムリストを取得
+  # Param:: params[:offset](オフセット)
   # Return:: json
   post '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
-    albums = user.albums({"locale" => "ja_JP"})
+    albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset]})
+    offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
     albums = albums.to_a.map{|album|
       {
         "id" => album.identifier,
@@ -140,9 +141,17 @@ class DfmApp < Sinatra::Base
         "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch(:access_token => session[:token]).source,
       }
     }
-    albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
+    if(params[:offset].to_i == 0)
+      tagged = user.photos({"type" => "tagged", "limit" => 1})[0].source
+      albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
+    end
+
+    response = {
+      "albums" => albums,
+      "offset" => offset,
+    }
     content_type :json
-    albums.to_json
+    response.to_json
   end
 
   # 自分のタグが付いた写真を取得
