@@ -123,7 +123,7 @@ class DfmApp < Sinatra::Base
       }
     }
     friends.unshift({"id" => user.identifier, "name" => user.name, "picture" => user.picture({"&width=" => "34", "&height=" => "34"})})
-    content_type 'application/json'
+    content_type :json
     friends.to_json
   end
 
@@ -141,7 +141,7 @@ class DfmApp < Sinatra::Base
       }
     }
     albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => tagged, "tags" => Array::new})
-    content_type 'application/json'
+    content_type :json
     albums.to_json
   end
 
@@ -157,7 +157,7 @@ class DfmApp < Sinatra::Base
         "source" => photo.source,
       }
     }
-    content_type 'application/json'
+    content_type :json
     photos.to_json
   end
 
@@ -175,7 +175,7 @@ class DfmApp < Sinatra::Base
         "source" => photo.source,
       }
     }
-    content_type 'application/json'
+    content_type :json
     photos.to_json
   end
 
@@ -209,10 +209,10 @@ class DfmApp < Sinatra::Base
       masked.write(dir)
       
       picture = {"source" => url}
-      content_type 'application/json'
+      content_type :json
       picture.to_json
     rescue => exc
-      content_type 'application/json'
+      content_type :json
       exc.to_json
     end
   end
@@ -251,7 +251,7 @@ class DfmApp < Sinatra::Base
       }
     }
 
-    content_type 'application/json'
+    content_type :json
     res.to_json
   end
 
@@ -301,7 +301,7 @@ class DfmApp < Sinatra::Base
       }
     }
 
-    content_type 'application/json'
+    content_type :json
     closely.to_json
   end
 
@@ -348,7 +348,7 @@ class DfmApp < Sinatra::Base
       "path" => url,
     }
 
-    content_type 'application/json'
+    content_type :json
     json.to_json
   end
 
@@ -387,7 +387,7 @@ class DfmApp < Sinatra::Base
       result = "error"
     end
 
-    content_type 'application/json'
+    content_type :json
     result.to_json
   end
 end
