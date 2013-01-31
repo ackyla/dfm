@@ -1,3 +1,20 @@
+.social-button {
+	float: left;
+	margin-right: 10px;
+}
+
+.social-button.fb {
+	padding-top: 1px;
+}
+
+.social-button.gp {
+	padding-top: 2px;
+}
+
+.social-button.hb {
+	padding-top: 2px;
+}
+
 #photo-container {
   overflow: auto;
   background-color: #ffffff;
