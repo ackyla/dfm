@@ -39,7 +39,7 @@ class DfmApp < Sinatra::Base
   error do
     "sorry"
   end
-  
+
   not_found do
     "404"
   end
@@ -83,7 +83,7 @@ class DfmApp < Sinatra::Base
   #facebook認証
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
-    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos, :photo_upload])
+    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])
   end
 
   #facebook認証のコールバック
@@ -379,32 +379,40 @@ class DfmApp < Sinatra::Base
   # 作成した写真をFacebookに投稿する
   # Param:: params[:url](合成写真のurl), params[:name](タグ名), params[:x](タグのx座標), params[:y](タグのy座標), params[:message](コメント)
   post '/upload' do
-    dir = "./public#{params[:url]}"
-    photo = Magick::ImageList.new(dir)
-    tags = Array::new
-      
-    if(params[:use_tag] == "tag")
-      if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
-        for i in 0..(params[:id].size-1)
-          tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
-        end
-      end
-      if(!params[:attendee_id].nil? && !params[:attendee_x].nil? && !params[:attendee_y].nil?)
-        for i in 0..(params[:attendee_id].size-1)
-          tags.append(FbGraph::Tag.new(:name => "#{params[:attendee_id][i]}", :x => params[:attendee_x][i], :y => params[:attendee_y][i]))
-        end
-      end
-    end
-
-    message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
 
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    user.photo!(:source => File.new(dir), :message => message, :tags => tags)
-    
-    # ファイルを削除
-    #File.delete(session[:path]) if File.exist?(session[:path])
+    flag = user.permissions.include?(:photo_upload)
+    if(!flag && params[:is_repeated])
+      result = "permission_refused"
+    elsif(!flag)
+      result = "not_permitted"
+    else
+      dir = "./public#{params[:url]}"
+      photo = Magick::ImageList.new(dir)
+      tags = Array::new
+      
+      if(params[:use_tag] == "tag")
+        if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
+          for i in 0..(params[:id].size-1)
+            tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+          end
+        end
+        if(!params[:attendee_id].nil? && !params[:attendee_x].nil? && !params[:attendee_y].nil?)
+          for i in 0..(params[:attendee_id].size-1)
+            tags.append(FbGraph::Tag.new(:name => "#{params[:attendee_id][i]}", :x => params[:attendee_x][i], :y => params[:attendee_y][i]))
+          end
+        end
+      end
+      
+      message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
+      
+      user.photo!(:source => File.new(dir), :message => message, :tags => tags)
+      
+      # ファイルを削除
+      #File.delete(session[:path]) if File.exist?(session[:path])
 
-    result = "success"
+      result = "success"
+    end
 
     content_type "application/json; charset=utf-8"
     result.to_json

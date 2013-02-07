@@ -34,6 +34,7 @@
 		<![endif]-->
 	</head>
 	<body id="top">
+		<div id="fb-root"></div>
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
@@ -49,6 +50,7 @@
 		<div id="main-container">
 			<div id="communication-error-message" class="alert alert-error" style="display: none;">通信エラーが発生しました！</div>
 			<div id="create-error-message" class="alert alert-warning" style="display: none;">欠席者を追加して下さい！</div>
+			<div id="permission-error-message" class="alert alert-warning" style="display: none;">写真の投稿を許可して下さい！</div>
 			<%= yield %>
 		</div>
 		<footer class="footer">

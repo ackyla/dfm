@@ -2,7 +2,7 @@ $(function(){
 
 		$.ajaxSetup({
 				error: function(XMLHttpRequest, textStatus, errorThrown){
-						$("#communication-error-message").show().delay(2000).fadeOut('slow');
+						$("#communication-error-message").show().delay(5000).fadeOut('slow');
 				},
 				cache: false
 		});
@@ -608,7 +608,7 @@ function showResult(json) {
 		$result.modal("show");
 }
 
-function upload() {
+function upload(isRepeated) {
 		$.ajax({
 				url: "upload",
 				type: "POST",
@@ -622,17 +622,26 @@ function upload() {
 						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
 						attendee_id: $(".attendee-tag").map(function(){ return $(this).val(); }).toArray(),
 						attendee_x: $(".attendee-tag").map(function(){ return $(this).attr("pos-x"); }).toArray(),
-						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray()
+						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray(),
+						is_repeated: isRepeated
 				},
 				success: function(json){
 						if(json == "success"){
 								location.replace("finished");
+						}else if(json == "not_permitted"){
+								FB.login(function(response){
+										upload(true);
+								}, {scope:"photo_upload"});
+						}else{
+								$("#permission-error-message").show().delay(5000).fadeOut('slow');
+								$(".modal-backdrop").fadeOut(function(){ $(this).remove(); });
+								$(".modal").fadeOut(function(){ $(this).remove(); });
 						}
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
-						$("#communication-error-message").show().delay(2000).fadeOut('slow');
+						$("#communication-error-message").show().delay(5000).fadeOut('slow');
 						$(".modal-backdrop").fadeOut(function(){ $(this).remove(); });
-						$("#modal-container").fadeOut(function(){ $(this).remove(); });
+						$(".modal").fadeOut(function(){ $(this).remove(); });
 				},
 				beforeSend: function(){
 						$(".modal-backdrop").unbind();
