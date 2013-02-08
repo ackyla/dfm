@@ -104,3 +104,13 @@
 	width: 100px;
 	height: 120px;
 }
+
+#album-item-container {
+	width: 660px;
+	margin: 0 auto;
+}
+
+#photo-item-container {
+	width: 660px;
+	margin: 0 auto;
+}
