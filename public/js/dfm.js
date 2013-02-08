@@ -650,3 +650,78 @@ function upload(isRepeated) {
 				}
 		});
 }
+
+/**
+ * 写真をアップロードして編集画面に表示する
+ */
+function uploadPhoto() {
+		var $file = $("<input>", { type: "file", name: "file" });
+		$file.change(function(){
+				var $photoWrapper = $("#photo-wrapper");
+				var $photoItemContainer = $("#photo-item-container");		
+				var file = $(this)[0];
+				var fr = new FileReader();
+
+				$photoItemContainer.hide();
+				$photoWrapper.show();
+				$("#photo-inner").remove();
+				
+				// 写真リストを隠す
+				$("#photo-select-wrapper").hide();
+				
+				// ナビメッセージを変更
+				$("#navi-message").text("欠席者を追加して集合写真を作成");
+				
+				// ローディングアニメーション表示
+				$("#loading-photo").show();
+   
+				fr.onload = function(){
+						$.ajax({
+								url: "upload.json",
+								type: "POST", 
+								data: {
+										file: fr.result
+								},
+								success: function(json){
+										var $photo = $(new EJS({
+												url: "ejs/photo.ejs"
+										}).render({ source: json["source"], width: json["width"] }));
+										
+										// 欠席者を削除
+										$(".absence-wrapper").each(function(){
+												removeAbsentee($(this).attr("data-id"));
+										});
+										
+										// 友達リストの並びを初期化
+										initFriendsOrder();
+										
+										// ローディングアニメーション消去
+										$("#loading-photo").hide();
+										
+										// 写真を追加
+										$photoWrapper.prepend($photo);
+
+										// 戻るボタンを有効化
+										$("#return-button").removeAttr("disabled");
+										
+										// 作成ボタンを有効化
+										$("#create-button").removeAttr("disabled");							
+								}
+						});
+				}
+
+				fr.readAsDataURL(file.files[0]);
+		});
+
+		$file.click();
+		
+/*
+		$("#file-upload").upload("", function(json){
+				
+		}, "json");
+
+
+	
+	
+*/
+}

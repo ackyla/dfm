@@ -46,6 +46,10 @@
 	margin: 10px;
 }
 
+.upload-wrapper {
+	margin: 10px;
+}
+
 #photo-wrapper {
 	background: url(../img/transparent.png);
 	padding: 10px;

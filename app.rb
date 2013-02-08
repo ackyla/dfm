@@ -417,4 +417,29 @@ class DfmApp < Sinatra::Base
     content_type "application/json; charset=utf-8"
     result.to_json
   end
+
+  post '/upload.json' do
+    session_id = session[:session_id]
+    filename = SecureRandom.hex(16)
+    url = "/files/#{session_id}/#{filename}.jpg"
+    dir = "./public#{url}"
+    img = Magick::Image.from_blob(Base64.decode64(params[:file].split(",")[1])).shift
+
+    #横幅が800より大きかったら比率維持して縮小
+    if(img.columns > 800)
+      img = img.resize_to_fit(800, 0)
+    end
+
+    img.write(dir)
+
+    res = {
+      "source" => url,
+      "width" => img.columns,
+      "height" => img.rows,
+      "tags" => nil
+    }
+
+    content_type "application/json; charset=utf-8"
+    res.to_json
+  end
 end
