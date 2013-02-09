@@ -3,6 +3,11 @@ $(function(){
 		$.ajaxSetup({
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 						$("#communication-error-message").show().delay(5000).fadeOut('slow');
+						// 戻るボタンを有効化
+						$("#return-button").removeAttr("disabled");
+						// ローディングアニメーション消去
+						$("#loading-photo").hide();
+										
 				},
 				cache: false
 		});
@@ -708,6 +713,27 @@ function uploadPhoto() {
 										$("#create-button").removeAttr("disabled");							
 								}
 						});
+				}
+
+				fr.onloadstart = function(){
+						// サイズ制限を超えたらエラーを表示
+						if(file.files[0].size > 1024*1024*10){
+								$("#size-error-message").show().delay(5000).fadeOut('slow');
+								fr.abort();
+						}
+						// ファイルタイプが指定のもの以外だったらエラーを表示
+						type = file.files[0].type
+						if(type.indexOf("jpeg") == -1 && type.indexOf("png") == -1 && type.indexOf("gif") == -1){
+								$("#filetype-error-message").show().delay(5000).fadeOut('slow');
+								fr.abort();
+						}
+				}
+
+				fr.onabort = function(){
+						// 戻るボタンを有効化
+						$("#return-button").removeAttr("disabled");
+						// ローディングアニメーション消去
+						$("#loading-photo").hide();
 				}
 
 				fr.readAsDataURL(file.files[0]);

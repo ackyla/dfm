@@ -419,7 +419,14 @@ class DfmApp < Sinatra::Base
     result.to_json
   end
 
+  # POSTされたバイナリ形式の写真をリサイズして保存する
+  # Param:: params[:file](アップロードファイルのバイナリデータ)
   post '/upload.json' do
+    mime = params[:file].split(",")[0]
+    if(!mime.include?("image/jpeg") && !mime.include?("image/png") && !mime.include?("image/gif"))
+      halt 500
+    end
+
     session_id = session[:session_id]
     filename = SecureRandom.hex(16)
     url = "/files/#{session_id}/#{filename}.jpg"
@@ -442,5 +449,6 @@ class DfmApp < Sinatra::Base
 
     content_type "application/json; charset=utf-8"
     res.to_json
+
   end
 end
