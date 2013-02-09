@@ -714,14 +714,4 @@ function uploadPhoto() {
 		});
 
 		$file.click();
-		
-/*
-		$("#file-upload").upload("", function(json){
-				
-		}, "json");
-
-
-	
-	
-*/
 }

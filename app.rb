@@ -13,6 +13,7 @@ class DfmApp < Sinatra::Base
 
   configure do
     APP_KEY, APP_SECRET = File.open(".key").read.split
+    MAX_WIDTH = 720;
     use Rack::Session::Cookie,
     :key => 'dfm.session',
     #:domain => 't-forget.me',
@@ -257,9 +258,9 @@ class DfmApp < Sinatra::Base
     dir = "./public#{url}"
     img = Magick::ImageList.new(fb_url)
 
-    #横幅が800より大きかったら比率維持して縮小
-    if(img.columns > 800)
-      img = img.resize_to_fit(800, 0)
+    #横幅がMAX_WIDTHより大きかったら比率維持して縮小
+    if(img.columns > MAX_WIDTH)
+      img = img.resize_to_fit(MAX_WIDTH, 0)
     end
 
     img.write(dir)
@@ -425,9 +426,9 @@ class DfmApp < Sinatra::Base
     dir = "./public#{url}"
     img = Magick::Image.from_blob(Base64.decode64(params[:file].split(",")[1])).shift
 
-    #横幅が800より大きかったら比率維持して縮小
-    if(img.columns > 800)
-      img = img.resize_to_fit(800, 0)
+    #横幅がMAX_WIDTHより大きかったら比率維持して縮小
+    if(img.columns > MAX_WIDTH)
+      img = img.resize_to_fit(MAX_WIDTH, 0)
     end
 
     img.write(dir)
