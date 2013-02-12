@@ -148,6 +148,7 @@ function sortFriends() {
 
 /**
  * アルバムを表示する
+ * #return-buttonを押した時に動く
  */
 function showAlbums() {
 		// ナビメッセージを変更
@@ -164,6 +165,7 @@ function showAlbums() {
 		if($("#albums-offset").val() != "0"){
 				$("#load-next-albums-button").show();
 		}
+		$("#toggle-mode-button").hide();
 		return false;
 }
 
@@ -407,7 +409,7 @@ function addAttendee(id, x, y) {
 		var $photo = $("#photo-inner")
 		var $attendee = $(new EJS({
 				url: "ejs/attendee.ejs"
-		}).render({ id: id, src: src, x: $photo.attr("data-width")*(x/100)-20, y: $photo.attr("data-height")*(y/100)-53}));
+		}).render({ id: id, src: src, x: x, y: y }));
 		//var $attendee = $("<input>", { type: "hidden", name: "tags[]" }).attr("pos-x", tag["x"]).attr("pos-y", tag["y"]).addClass("attendee-tag").val(id);
 		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
 		var attendees = $(".attendee-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
@@ -418,7 +420,7 @@ function addAttendee(id, x, y) {
 		// ajax
 		updateClosely(id, absentees, attendees, -1);
 
-		$("#attendee-container").prepend($attendee);
+		$("#attendee-container").append($attendee);
 
 		// ドラッガブル
 		$attendee.draggable({
@@ -446,7 +448,7 @@ function addAbsentee(id) {
 		var $absentee = $(new EJS({
 				url: "ejs/absence.ejs"
 		}).render({ id: id }));
-		$("#absence-container").prepend($absentee);
+		$("#absence-container").append($absentee);
 
 		// 選択された友達はリストから非表示にする
 		hideFriend(id);
@@ -590,12 +592,23 @@ function getPhoto($item) {
 						// 出席者を追加
 						$.each(json["tags"], function(){
 								if(this.id != undefined, this.x != undefined, this.y != undefined){
-										addAttendee(this.id, this.x, this.y);
+										var x = $photo.attr("data-width")*(this.x/100)-23;
+										var y = $photo.attr("data-height")*(this.y/100)-55;
+										addAttendee(this.id, x, y);
 								}
 						});
+
+						// 戻るボタンを有効化
+						$("#return-button").removeAttr("disabled");
 						
 						// 作成ボタンを有効化
-						$("#create-button").removeAttr("disabled");								
+						$("#create-button").removeAttr("disabled");
+
+						// 欠席者モードをon
+						enableAbsenteeMode();
+						
+						// モード切り替えボタンを表示
+						$("#toggle-mode-button").show();
 				}
 		});
 }
@@ -644,6 +657,9 @@ function showResult(json) {
 }
 
 function upload(isRepeated) {
+		var width = $("#photo-inner").attr("data-width");
+		var height = $("#photo-inner").attr("data-height");
+		
 		$.ajax({
 				url: "upload",
 				type: "POST",
@@ -653,11 +669,11 @@ function upload(isRepeated) {
 						message: $("#message").val(),
 						use_tag: $("#use-tag").attr("checked") ? "tag" : "",
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
-						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
-						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
+						x: $(".position-x").map(function(){ return (parseInt($(this).val())+50)/width*100; }).toArray(),
+						y: $(".position-y").map(function(){ return (parseInt($(this).val())+60)/height*100; }).toArray(),
 						attendee_id: $(".attendee-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
-						attendee_x: $(".attendee-wrapper").map(function(){ return $(this).css("top"); }).toArray(),
-						attendee_y: $(".attendee-wrapper").map(function(){ return $(this).css("left"); }).toArray(),
+						attendee_x: $(".attendee-wrapper").map(function(){ return (parseInt($(this).css("left"))+23)/width*100; }).toArray(),
+						attendee_y: $(".attendee-wrapper").map(function(){ return (parseInt($(this).css("top"))+55)/height*100; }).toArray(),
 						is_repeated: isRepeated
 				},
 				success: function(json){
@@ -740,7 +756,13 @@ function uploadPhoto() {
 										$("#return-button").removeAttr("disabled");
 										
 										// 作成ボタンを有効化
-										$("#create-button").removeAttr("disabled");							
+										$("#create-button").removeAttr("disabled");
+
+										// 出席者モードをon
+										enableAttendeeMode();
+						
+										// モード切り替えボタンを表示
+										$("#toggle-mode-button").show();
 								}
 						});
 				}
@@ -778,9 +800,12 @@ function enableAttendeeMode() {
 		$("#attendee-container").show();
 		$("#absence-container").hide();
 
+		// ナビメッセージを変更
+		$("#navi-message").text("出席者にタグを付ける");
+		
 		$(".friend-wrapper").unbind("click").click(function(){
 				var id = $(this).attr("data-id");
-				addAttendee(id, 5, 5);
+				addAttendee(id, 20, 20);
 				return false;
 		});
 }
@@ -791,6 +816,9 @@ function enableAbsenteeMode() {
 		$("#attendee-container").hide();
 		$("#absence-container").show();
 
+		// ナビメッセージを変更
+		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		
 		$(".friend-wrapper").unbind("click").click(function(){
 				var id = $(this).attr("data-id");
 				addAbsentee(id);

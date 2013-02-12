@@ -14,7 +14,7 @@
 			<div id="photo-nav">
 				<div id="photo-nav-inner" class="clearfix">
 					<div class="pull-right">
-						<button id="return-button" type="button" class="btn" onclick="showAlbums(); return false;" disabled="disabled"><i class="icon-arrow-left"></i> 戻る</button>
+						<button id="return-button" type="button" class="btn" onclick="showAlbums();" disabled="disabled"><i class="icon-arrow-left"></i> 戻る</button>
 						<button id="create-button" type="button" class="btn btn-primary" onclick="createPhoto(); return false;" disabled="disabled"><i class="icon-ok icon-white"></i> 作成する</button>
 					</div>
 					<div>
@@ -44,7 +44,7 @@
 				</div>
 			</div>
 			<div id="photo-wrapper" style="display: none;">
-				<div class="btn-group" style="margin-left: 4px; margin-bottom: 10px;">
+				<div id="toggle-mode-button" class="btn-group" style="margin-left: 4px; margin-bottom: 10px; display: none;">
 					<button id="attendee-mode-button" class="btn active" onClick="enableAttendeeMode();">出席者</button>
 					<button id="absentee-mode-button" class="btn" onClick="enableAbsenteeMode();">欠席者</button>
 				</div>

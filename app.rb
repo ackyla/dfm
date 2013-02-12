@@ -395,7 +395,7 @@ class DfmApp < Sinatra::Base
       if(params[:use_tag] == "tag")
         if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
           for i in 0..(params[:id].size-1)
-            tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => (params[:x][i].to_f+50) / photo.columns * 100, :y => (params[:y][i].to_f+60) / photo.rows * 100))
+            tags.append(FbGraph::Tag.new(:name => "#{params[:id][i]}", :x => params[:x][i], :y => params[:y][i]))
           end
         end
         if(!params[:attendee_id].nil? && !params[:attendee_x].nil? && !params[:attendee_y].nil?)
