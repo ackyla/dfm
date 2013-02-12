@@ -1,7 +1,10 @@
-<div id="photo-inner" style="width: <%= width %>px; margin: 0 auto; position: relative; overflow: hidden;">
-	<input type="hidden" name="photo" value="<%= source %>" />
-	<img src="<%= source %>" class="photo" style="z-index: -1000;" />
+<div id="photo-inner" data-width="<%= photo['width'] %>" data-height="<%= photo['height'] %>" style="width: <%= photo['width'] %>px; margin: 0 auto; position: relative; overflow: hidden;">
+	<input type="hidden" name="photo" value="<%= photo['source'] %>" />
+	<img src="<%= photo['source'] %>" class="photo" style="z-index: -1000;" />
 	<div id="absence-container">
 		<!-- ABSENCE.EJS -->
+	</div>
+	<div id="attendee-container">
+		<!-- ATTENDEE.EJS -->
 	</div>
 </div>

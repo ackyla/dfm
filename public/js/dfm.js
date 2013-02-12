@@ -5,9 +5,6 @@ $(function(){
 						$("#communication-error-message").show().delay(5000).fadeOut('slow');
 						// 戻るボタンを有効化
 						$("#return-button").removeAttr("disabled");
-						// ローディングアニメーション消去
-						$("#loading-photo").hide();
-										
 				},
 				cache: false
 		});
@@ -104,7 +101,6 @@ function getFriends() {
 						// クリックした時の動作
 						$friends.click(function(){
 								var id = $(this).attr("data-id");
-								hideFriend(id);
 								addAbsentee(id);
 								return false;
 						});
@@ -406,25 +402,42 @@ function updateClosely(id, absentees, attendees, operator) {
 /**
  * 出席者を追加する
  */
-function addAttendee(tag) {
-		var id = tag["id"]
-		var $photoInner = $("#photo-inner");
-		var $attendee = $("<input>", { type: "hidden", name: "tags[]" }).attr("pos-x", tag["x"]).attr("pos-y", tag["y"]).addClass("attendee-tag").val(id);
+function addAttendee(id, x, y) {
+		var src = $("#friend-item-container [data-id="+id+"]").find(".profile-picture").attr("src");
+		var $photo = $("#photo-inner")
+		var $attendee = $(new EJS({
+				url: "ejs/attendee.ejs"
+		}).render({ id: id, src: src, x: $photo.attr("data-width")*(x/100)-20, y: $photo.attr("data-height")*(y/100)-53}));
+		//var $attendee = $("<input>", { type: "hidden", name: "tags[]" }).attr("pos-x", tag["x"]).attr("pos-y", tag["y"]).addClass("attendee-tag").val(id);
 		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
-		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
+		var attendees = $(".attendee-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
 
+		// 選択された友達はリストから非表示にする
+		hideFriend(id);
+		
 		// ajax
 		updateClosely(id, absentees, attendees, -1);
 
-		hideFriend(id);
-		$photoInner.prepend($attendee);
+		$("#attendee-container").prepend($attendee);
+
+		// ドラッガブル
+		$attendee.draggable({
+				grid: [5, 5]
+		});
+
+		// 閉じる
+		$attendee.find(".close-button").click(function(){
+				showFriend(id);
+				removeAttendee(id);
+				return false;
+		});
 }
 
 /**
  * 欠席者を追加する
  */
 function addAbsentee(id) {
-
+		
 		// 既に追加されている欠席者と出席者を取得
 		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
 		var attendees = $("#photo-inner").find("[name='tags[]']").map(function(){ return $(this).val(); }).toArray();
@@ -435,6 +448,9 @@ function addAbsentee(id) {
 		}).render({ id: id }));
 		$("#absence-container").prepend($absentee);
 
+		// 選択された友達はリストから非表示にする
+		hideFriend(id);
+		
 		// 友達リストをソート
 		updateClosely(id, absentees, attendees, -1);
 		
@@ -474,6 +490,20 @@ function addAbsentee(id) {
 						});
 				}
 		});
+}
+
+/**
+ * 出席者を削除する
+ */
+function removeAttendee(id) {
+
+		$("[data-id="+id+"].attendee-wrapper").remove();
+
+		var absentees = $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+		var attendees = $(".attendee-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray();
+
+		// ajax
+		updateClosely(id, absentees, attendees, 1);
 }
 
 /**
@@ -541,7 +571,7 @@ function getPhoto($item) {
 				success: function(json){
 						var $photo = $(new EJS({
 								url: "ejs/photo.ejs"
-						}).render({ source: json["source"], width: json["width"] }));
+						}).render({ photo: json }));
 						
 						// 欠席者を削除
 						$(".absence-wrapper").each(function(){
@@ -555,12 +585,12 @@ function getPhoto($item) {
 						$("#loading-photo").hide();
 						
 						// 写真を追加
-						$photoWrapper.prepend($photo);
+						$photoWrapper.append($photo);
 						
 						// 出席者を追加
 						$.each(json["tags"], function(){
 								if(this.id != undefined, this.x != undefined, this.y != undefined){
-										addAttendee(this);
+										addAttendee(this.id, this.x, this.y);
 								}
 						});
 						
@@ -625,9 +655,9 @@ function upload(isRepeated) {
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
 						x: $(".position-x").map(function(){ return $(this).val(); }).toArray(),
 						y: $(".position-y").map(function(){ return $(this).val(); }).toArray(),
-						attendee_id: $(".attendee-tag").map(function(){ return $(this).val(); }).toArray(),
-						attendee_x: $(".attendee-tag").map(function(){ return $(this).attr("pos-x"); }).toArray(),
-						attendee_y: $(".attendee-tag").map(function(){ return $(this).attr("pos-y"); }).toArray(),
+						attendee_id: $(".attendee-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
+						attendee_x: $(".attendee-wrapper").map(function(){ return $(this).css("top"); }).toArray(),
+						attendee_y: $(".attendee-wrapper").map(function(){ return $(this).css("left"); }).toArray(),
 						is_repeated: isRepeated
 				},
 				success: function(json){
@@ -690,7 +720,7 @@ function uploadPhoto() {
 								success: function(json){
 										var $photo = $(new EJS({
 												url: "ejs/photo.ejs"
-										}).render({ source: json["source"], width: json["width"] }));
+										}).render({ photo: json }));
 										
 										// 欠席者を削除
 										$(".absence-wrapper").each(function(){
@@ -704,7 +734,7 @@ function uploadPhoto() {
 										$("#loading-photo").hide();
 										
 										// 写真を追加
-										$photoWrapper.prepend($photo);
+										$photoWrapper.append($photo);
 
 										// 戻るボタンを有効化
 										$("#return-button").removeAttr("disabled");
@@ -740,4 +770,30 @@ function uploadPhoto() {
 		});
 
 		$file.click();
+}
+
+function enableAttendeeMode() {
+		$("#attendee-mode-button").addClass("active");
+		$("#absentee-mode-button").removeClass("active");
+		$("#attendee-container").show();
+		$("#absence-container").hide();
+
+		$(".friend-wrapper").unbind("click").click(function(){
+				var id = $(this).attr("data-id");
+				addAttendee(id, 5, 5);
+				return false;
+		});
+}
+
+function enableAbsenteeMode() {
+		$("#attendee-mode-button").removeClass("active");
+		$("#absentee-mode-button").addClass("active");
+		$("#attendee-container").hide();
+		$("#absence-container").show();
+
+		$(".friend-wrapper").unbind("click").click(function(){
+				var id = $(this).attr("data-id");
+				addAbsentee(id);
+				return false;
+		});
 }
