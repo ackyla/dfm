@@ -166,6 +166,7 @@ function showAlbums() {
 				$("#load-next-albums-button").show();
 		}
 		$("#toggle-mode-button").hide();
+		hideFrameContainer();
 		return false;
 }
 
@@ -424,9 +425,10 @@ function addAttendee(id, x, y) {
 
 		// ドラッガブル
 		$attendee.draggable({
-				grid: [5, 5]
+				grid: [5, 5],
+				containment: "#photo-inner"
 		});
-
+		
 		// 閉じる
 		$attendee.find(".close-button").click(function(){
 				showFriend(id);
@@ -456,6 +458,9 @@ function addAbsentee(id) {
 		// 友達リストをソート
 		updateClosely(id, absentees, attendees, -1);
 
+		// フレームリストを隠す
+		hideFrameContainer();
+		
 		// 欠席者の写真を取得
 		$.ajax({
 				url: "absentee.json",
@@ -479,6 +484,7 @@ function addAbsentee(id) {
 										$(this).find("input.position-x").val($(this).css("left"));
 										$(this).find("input.position-y").val($(this).css("top"));
 								},
+								containment: "#photo-inner",
 								grid: [5, 5]
 						});
 						
@@ -489,6 +495,8 @@ function addAbsentee(id) {
 						
 						// 閉じる
 						$absentee.find(".close-button").show().click(function(){
+								// フレームリストを隠す
+								hideFrameContainer();
 								showFriend(id);
 								removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
 								return false;
@@ -496,21 +504,54 @@ function addAbsentee(id) {
 
 						// フレーム変更（仮）
 						$absentee.click(function(){
-								changeFrame($(this));
+								$("img.selected").removeClass("selected");
+								$(this).find(".absence-image").addClass("selected");
+								$("#selected-absentee-id").val($absentee.attr("data-id"));
+								$("#frame-container").show(1, function(){
+										$(".photo").click(function(){
+												hideFrameContainer();
+										});
+								});
+								return false;
 						});
 				}
 		});
 }
 
+function hideFrameContainer() {
+		$("img.selected").removeClass("selected");
+		$("#frame-container").hide();
+		$(".photo").unbind("click");
+}
+
 /**
  * フレームを変える
  */
-function changeFrame($absentee) {
+function changeFrame(shape, border, color) {
 
+		id = $("#selected-absentee-id").val();
+		$absentee = $("[data-id="+id+"].absence-wrapper");
+		
 		// 写真を非表示にしてロードを表示する
 		$absentee.find(".absence-image").hide();
 		$absentee.find(".loading-absence-image").show();
 		$absentee.find(".close-button").hide();
+
+		// nullだったら情報を取ってくる
+		if(shape == null){
+				shape = $absentee.attr("data-shape");
+		}
+		if(border == null){
+				border = $absentee.attr("data-border");
+		}
+		if(color == null){
+				color = $absentee.attr("data-color");
+		}
+
+		// 現在の設定を保存する
+		$absentee.attr("data-shape", shape);
+		$absentee.attr("data-border", border);
+		$absentee.attr("data-color", color);
 		
 		// 欠席者の写真を取得
 		$.ajax({
@@ -519,9 +560,9 @@ function changeFrame($absentee) {
 				dataType: "json",
 				data: {
 						id: $absentee.attr("data-id"),
-						shape: "photographer",
-						border: "none",
-						color: "color"
+						shape: shape,
+						border: border,
+						color: color
 				},
 				success: function(json){
 
