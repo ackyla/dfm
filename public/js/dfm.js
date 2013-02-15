@@ -455,20 +455,23 @@ function addAbsentee(id) {
 		
 		// 友達リストをソート
 		updateClosely(id, absentees, attendees, -1);
-		
+
 		// 欠席者の写真を取得
 		$.ajax({
 				url: "absentee.json",
 				type: "POST",
 				dataType: "json",
 				data: {
-						id: id
+						id: id,
+						shape: "oval",
+						border: "white",
+						color: "color"
 				},
 				success: function(json){
 
 						// 追加していたフレームに写真を表示する
 						$absentee.find(".absence-image").attr("src", json["source"]).show();
-						$absentee.find(".loading-absence-image").remove();
+						$absentee.find(".loading-absence-image").hide();
 						
 						// ドラッガブル
 						$absentee.draggable({
@@ -490,6 +493,43 @@ function addAbsentee(id) {
 								removeAbsentee($(this).closest(".absence-wrapper").attr("data-id"));
 								return false;
 						});
+
+						// フレーム変更（仮）
+						$absentee.click(function(){
+								changeFrame($(this));
+						});
+				}
+		});
+}
+
+/**
+ * フレームを変える
+ */
+function changeFrame($absentee) {
+
+		// 写真を非表示にしてロードを表示する
+		$absentee.find(".absence-image").hide();
+		$absentee.find(".loading-absence-image").show();
+		$absentee.find(".close-button").hide();
+		
+		// 欠席者の写真を取得
+		$.ajax({
+				url: "absentee.json",
+				type: "POST",
+				dataType: "json",
+				data: {
+						id: $absentee.attr("data-id"),
+						shape: "photographer",
+						border: "none",
+						color: "color"
+				},
+				success: function(json){
+
+						// フレーム変更
+						$absentee.find(".absence-image").attr("src", json["source"]).show();
+						$absentee.find(".loading-absence-image").hide();
+						$absentee.find(".close-button").show();
+						
 				}
 		});
 }

@@ -210,8 +210,54 @@ class DfmApp < Sinatra::Base
   # Param:: params[:id](欠席者のFacebookID)
   # Return:: json
   post '/absentee.json' do
+    
+    case params[:shape]
+    when "circle"
+      width = 100
+      height = 100
+      corner_width = 50
+      corner_height = 50
+    when "square"
+      width = 100
+      height = 100
+      corner_width = 10
+      corner_height = 10
+    when "photographer"
+      width = 100
+      height = 100
+      corner_width = 2
+      corner_height = 2
+    else
+      # oval
+      width = 100
+      height = 120
+      corner_width = 50
+      corner_height = 60
+    end
+
+    case params[:border]
+    when "black"
+      stroke_width = 2
+      stroke_color = "black"
+    when "none"
+      stroke_width = 0
+      stroke_color = "none"
+    else
+      # white
+      stroke_width = 2
+      stroke_color = "white"
+    end
+    
+    case params[:color]
+    when "gray"
+      gray_scale = true
+    else
+      # color
+      gray_scale = false
+    end
+
     id = params[:id]
-    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(100).height(120)"})
+    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(#{width}).height(#{height})"})
     fb_url = user.raw_attributes["picture"]["data"]["url"]
     session_id = session[:session_id]
     filename = SecureRandom.hex(16)
@@ -219,21 +265,58 @@ class DfmApp < Sinatra::Base
     dir = "./public#{url}"
 
     begin
-      absentee = Magick::ImageList.new(fb_url)
-      if(absentee.columns != 100 || absentee.rows != 120)
-        absentee = absentee.resize_to_fill(100, 120)
+      if stroke_width > 0
+        width -= stroke_width*2
+        height -= stroke_width*2
       end
-      mask = Magick::ImageList.new("./masks/mask_oval.png")
-      mask.alpha = Magick::ActivateAlphaChannel
-      masked = mask.composite(absentee, 0, 0, Magick::SrcInCompositeOp)
 
+      absentee = Magick::ImageList.new(fb_url)
+      if(absentee.columns != width || absentee.rows != height)
+        absentee = absentee.resize_to_fill(width, height)
+      end
+      if(gray_scale)
+        absentee = absentee.modulate(1.0, 0.0001, 1.0)
+      end
+
+      dr = Magick::Draw.new
+      dr.fill = "black"
+      dr.roundrectangle(0, 0, width-1, height-1, corner_width, corner_height)
+      mask = Magick::ImageList.new
+      mask.new_image(width, height) { self.background_color = "none" }
+      dr.draw(mask)
+      result = mask.composite(absentee, 0, 0, Magick::SrcInCompositeOp)
+
+      if stroke_width > 0
+        dr = Magick::Draw.new
+        dr.fill = stroke_color
+        dr.roundrectangle(0, 0, width-1+stroke_width*2, height-1+stroke_width*2, corner_width+stroke_width, corner_height+stroke_width)
+        border = Magick::ImageList.new
+        border.new_image(width+stroke_width*2, height+stroke_width*2) { self.background_color = "none" }
+        dr.draw(border)
+        result = border.composite(result, stroke_width, stroke_width, Magick::OverCompositeOp)
+      end
+
+      if params[:shape] == "photographer"
+        result["caption"] = "撮影者様"
+        result = result.polaroid(5){
+          self.font = "./ipam.ttf"
+          self.pointsize = 20
+          self.gravity = Magick::SouthGravity
+          self.fill = "black"
+          self.border_color = "#f8f8ff"
+          self.undercolor = "none"
+          self.shadow_color = "#202020"
+        }
+      end
+
+      #result = result.resize_to_fill(width, height)
 =begin
       masked.background_color = "black"
       shadow = masked.shadow(5, 5, 3, 0.4)
       shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
 =end   
 
-      masked.write(dir)
+      result.write(dir)
       
       picture = {"source" => url}
       content_type "application/json; charset=utf-8"
