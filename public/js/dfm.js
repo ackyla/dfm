@@ -761,9 +761,13 @@ function upload(isRepeated) {
 						if(json == "success"){
 								location.replace("finished");
 						}else if(json == "not_permitted"){
-								FB.login(function(response){
+								FB.ui({
+										method: 'permissions.request',
+										perms: 'photo_upload',
+										display: 'iframe'
+								},function(response){
 										upload(true);
-								}, {scope:"photo_upload"});
+								});
 						}else{
 								$("#permission-error-message").show().delay(5000).fadeOut('slow');
 								$(".modal-backdrop").fadeOut(function(){ $(this).remove(); });
