@@ -47,7 +47,6 @@ class DfmApp < Sinatra::Base
 
   get '/' do
     @page_name = ""
-    @page_js = "<script type='text/javascript' src='js/index.js#{get_timestamp("./public/js/index.js")}'></script>"
     erb :index
   end
 

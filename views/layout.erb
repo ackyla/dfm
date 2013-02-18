@@ -38,7 +38,7 @@
 		<div class="navbar navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<a class="brand" href="/">Don't forget me!!!</a>
+					<a class="brand" href="/" style="padding: 2px 20px;" title="Don't forget me!!!" ><img src="img/header_logo.png" style="height: 36px;"/></a>
 					<div class="nav-collapse">
 						<ul class="nav">
 							<li><a href="/">ホーム</a></li>
@@ -48,11 +48,15 @@
 			</div>
 		</div>
 		<div class="container">
-			<div id="communication-error-message" class="alert alert-error" style="display: none;">通信エラーが発生しました！</div>
-			<div id="create-error-message" class="alert alert-warning" style="display: none;">欠席者を追加して下さい！</div>
-			<div id="permission-error-message" class="alert alert-warning" style="display: none;">写真の投稿を許可して下さい！</div>
-			<div id="size-error-message" class="alert alert-warning" style="display: none;">写真のサイズが制限を超えています！</div>
-			<div id="filetype-error-message" class="alert alert-warning" style="display: none;">扱えないファイル形式です！</div>
+			<div class="row" style="padding: 20px 0;">
+				<div class="span12">
+					<div id="communication-error-message" class="alert alert-error" style="display: none;">通信エラーが発生しました！</div>
+					<div id="create-error-message" class="alert alert-warning" style="display: none;">欠席者を追加して下さい！</div>
+					<div id="permission-error-message" class="alert alert-warning" style="display: none;">写真の投稿を許可して下さい！</div>
+					<div id="size-error-message" class="alert alert-warning" style="display: none;">写真のサイズが制限を超えています！</div>
+					<div id="filetype-error-message" class="alert alert-warning" style="display: none;">扱えないファイル形式です！</div>
+				</div>
+			</div>
 			<%= yield %>
 		</div>
 		<footer class="footer">
