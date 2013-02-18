@@ -50,16 +50,6 @@ class DfmApp < Sinatra::Base
     erb :index
   end
 
-  get '/agent' do
-    ua = request.user_agent
-    if ua.include?('Mobile') || ua.include?('Android')
-      "mobile!!!"
-    else
-      "not mobile!!!"
-    end
-
-  end
-
   get '/edit' do
 
     # セッションがなかったらauthに飛ぶ
