@@ -791,92 +791,87 @@ function upload(isRepeated) {
  * 写真をアップロードして編集画面に表示する
  */
 function uploadPhoto() {
-		var $file = $("<input>", { type: "file", name: "file" });
-		$file.change(function(){
-				var $photoWrapper = $("#photo-wrapper");
-				var $photoItemContainer = $("#photo-item-container");		
-				var file = $(this)[0];
-				var fr = new FileReader();
+		var $photoWrapper = $("#photo-wrapper");
+		var $photoItemContainer = $("#photo-item-container");		
+		var file = $("#file")[0];
+		var fr = new FileReader();
 
-				$photoItemContainer.hide();
-				$photoWrapper.show();
-				$("#photo-inner").remove();
-				
-				// 写真リストを隠す
-				$("#photo-select-wrapper").hide();
-				
-				// ナビメッセージを変更
-				$("#navi-message").text("欠席者を追加して集合写真を作成");
-				
-				// ローディングアニメーション表示
-				$("#loading-photo").show();
-   
-				fr.onload = function(){
-						$.ajax({
-								url: "upload.json",
-								type: "POST", 
-								data: {
-										file: fr.result
-								},
-								success: function(json){
-										var $photo = $(new EJS({
-												url: "ejs/photo.ejs"
-										}).render({ photo: json }));
-										
-										// 欠席者を削除
-										$(".absence-wrapper").each(function(){
-												removeAbsentee($(this).attr("data-id"));
-										});
-										
-										// 友達リストの並びを初期化
-										initFriendsOrder();
-										
-										// ローディングアニメーション消去
-										$("#loading-photo").hide();
-										
-										// 写真を追加
-										$photoWrapper.append($photo);
+		$photoItemContainer.hide();
+		$photoWrapper.show();
+		$("#photo-inner").remove();
+		
+		// 写真リストを隠す
+		$("#photo-select-wrapper").hide();
+		
+		// ナビメッセージを変更
+		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		
+		// ローディングアニメーション表示
+		$("#loading-photo").show();
+		
+		fr.onload = function(){
+				$.ajax({
+						url: "upload.json",
+						type: "POST", 
+						data: {
+								file: fr.result
+						},
+						success: function(json){
+								var $photo = $(new EJS({
+										url: "ejs/photo.ejs"
+								}).render({ photo: json }));
+								
+								// 欠席者を削除
+								$(".absence-wrapper").each(function(){
+										removeAbsentee($(this).attr("data-id"));
+								});
+								
+								// 友達リストの並びを初期化
+								initFriendsOrder();
+								
+								// ローディングアニメーション消去
+								$("#loading-photo").hide();
+								
+								// 写真を追加
+								$photoWrapper.append($photo);
 
-										// 戻るボタンを有効化
-										$("#return-button").removeAttr("disabled");
-										
-										// 作成ボタンを有効化
-										$("#create-button").removeAttr("disabled");
+								// 戻るボタンを有効化
+								$("#return-button").removeAttr("disabled");
+								
+								// 作成ボタンを有効化
+								$("#create-button").removeAttr("disabled");
 
-										// 出席者モードをon
-										enableAttendeeMode();
-						
-										// モード切り替えボタンを表示
-										$("#toggle-mode-button").show();
-								}
-						});
-				}
-
-				fr.onloadstart = function(){
-						// サイズ制限を超えたらエラーを表示
-						if(file.files[0].size > 1024*1024*10){
-								$("#size-error-message").show().delay(5000).fadeOut('slow');
-								fr.abort();
+								// 出席者モードをon
+								enableAttendeeMode();
+								
+								// モード切り替えボタンを表示
+								$("#toggle-mode-button").show();
 						}
-						// ファイルタイプが指定のもの以外だったらエラーを表示
-						type = file.files[0].type
-						if(type.indexOf("jpeg") == -1 && type.indexOf("png") == -1 && type.indexOf("gif") == -1){
-								$("#filetype-error-message").show().delay(5000).fadeOut('slow');
-								fr.abort();
-						}
+				});
+		}
+
+		fr.onloadstart = function(){
+				// サイズ制限を超えたらエラーを表示
+				if(file.files[0].size > 1024*1024*10){
+						$("#size-error-message").show().delay(5000).fadeOut('slow');
+						fr.abort();
 				}
-
-				fr.onabort = function(){
-						// 戻るボタンを有効化
-						$("#return-button").removeAttr("disabled");
-						// ローディングアニメーション消去
-						$("#loading-photo").hide();
+				// ファイルタイプが指定のもの以外だったらエラーを表示
+				type = file.files[0].type
+				if(type.indexOf("jpeg") == -1 && type.indexOf("png") == -1 && type.indexOf("gif") == -1){
+						$("#filetype-error-message").show().delay(5000).fadeOut('slow');
+						fr.abort();
 				}
+		}
 
-				fr.readAsDataURL(file.files[0]);
-		});
+		fr.onabort = function(){
+				// 戻るボタンを有効化
+				$("#return-button").removeAttr("disabled");
+				// ローディングアニメーション消去
+				$("#loading-photo").hide();
+		}
 
-		$file.click();
+		fr.readAsDataURL(file.files[0]);
 }
 
 function enableAttendeeMode() {
