@@ -51,15 +51,25 @@ class DfmApp < Sinatra::Base
     erb :index
   end
 
+  get '/agent' do
+    ua = request.user_agent
+    if ua.include?('Mobile') || ua.include?('Android')
+      "mobile!!!"
+    else
+      "not mobile!!!"
+    end
+
+  end
+
   get '/edit' do
 
-    # セッションのチェック
+    # セッションがなかったらauthに飛ぶ
     if session[:token].nil?
       redirect '/auth'
     end
 
+    # apiでユーザの取得に失敗したらauthに飛ぶ
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
-
     begin
       me = FbGraph::User.me session[:token] 
       me.fetch
@@ -67,9 +77,19 @@ class DfmApp < Sinatra::Base
       redirect '/auth'
     end
     
+    # 権限が足りてなかったらauthに飛ぶ
     if(!me.permissions.include?(:user_photos) || !me.permissions.include?(:friends_photos))
       redirect '/auth'
     end
+
+    # モバイルだと投稿時の権限追加がうまくできないので、photo_uploadがあるかもチェックする
+    ua = request.user_agent
+    if ua.include?('Mobile') || ua.include?('Android')
+      if !me.permissions.include?(:photo_upload)
+        redirect '/auth'
+      end
+    end
+    
 
     @page_name = "写真作成 | "
     @page_js = "<script type='text/javascript' src='js/dfm.js#{get_timestamp("./public/js/index.js")}' charset='utf-8'></script>"
@@ -84,7 +104,13 @@ class DfmApp < Sinatra::Base
   #facebook認証
   get '/auth' do
     auth = FbGraph::Auth.new APP_KEY, APP_SECRET, :redirect_uri => "#{request.scheme}://#{request.host}" + (request.port != 80 ? ":#{request.port}" : "") + "/auth/callback"
-    redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])
+    # モバイルだと投稿時の権限追加がうまくできないので、photo_uploadも認証に追加する
+    ua = request.user_agent
+    if ua.include?('Mobile') || ua.include?('Android')
+      redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos, :photo_upload])
+    else
+      redirect auth.client.authorization_uri(:scope => [:user_photos, :friends_photos])
+    end
   end
 
   #facebook認証のコールバック
