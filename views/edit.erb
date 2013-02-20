@@ -26,16 +26,21 @@
 				<div id="photo-select-inner">
 					<div id="album-item-container">
 						<div class="upload-wrapper item">
-							<div style="background: whiteSmoke; width: 200px; height: 50px; position: relative; text-align: center; padding: 75px 0;">
-								<% if @is_ie %>
+							<% if @is_ie %>
+								<div style="background: whiteSmoke; width: 200px; height: 110px; position: relative; text-align: center; padding: 45px 0;">
+									<p>写真をアップロードする</p>
 									<input id="file" type="file" name="file" onChange="uploadPhoto();" style="width: 170px;"/>
 									<p>JPG/PNG/GIF, 10MBまで</p>
-								<% else %>
+									<p>※一部ブラウザでは非対応</p>
+								</div>
+							<% else %>
+								<div style="background: whiteSmoke; width: 200px; height: 80px; position: relative; text-align: center; padding: 60px 0;">
 									<input id="file" type="file" name="file" onChange="uploadPhoto();" style="display: none;"/>
 									<button id="upload-button" class="btn" onClick="$('#file').click();">写真をアップロードする</button>
 									<p>JPG/PNG/GIF, 10MBまで</p>
-								<% end %>
-							</div>
+									<p>※一部ブラウザでは非対応</p>
+								</div>
+							<% end %>
 						</div>
 					</div>
 					<div id="photo-item-container" style="display: none;">
