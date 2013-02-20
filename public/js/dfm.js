@@ -527,7 +527,7 @@ function hideFrameContainer() {
 /**
  * フレームを変える
  */
-function changeFrame(shape, border, color) {
+function changeFrame(shape, border, color, size) {
 
 		id = $("#selected-absentee-id").val();
 		$absentee = $("[data-id="+id+"].absence-wrapper");
@@ -547,11 +547,15 @@ function changeFrame(shape, border, color) {
 		if(color == null){
 				color = $absentee.attr("data-color");
 		}
+		if(size == null){
+				size = $absentee.attr("data-size");
+		}
 
 		// 現在の設定を保存する
 		$absentee.attr("data-shape", shape);
 		$absentee.attr("data-border", border);
 		$absentee.attr("data-color", color);
+		$absentee.attr("data-size", size);
 		
 		// 欠席者の写真を取得
 		$.ajax({
@@ -562,7 +566,8 @@ function changeFrame(shape, border, color) {
 						id: $absentee.attr("data-id"),
 						shape: shape,
 						border: border,
-						color: color
+						color: color,
+						size: size
 				},
 				success: function(json){
 

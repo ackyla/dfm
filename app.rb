@@ -231,28 +231,37 @@ class DfmApp < Sinatra::Base
   # Return:: json
   post '/absentee.json' do
     
+    case params[:size]
+    when "small"
+      width = 50
+      height = 50
+      font_size = 12
+    when "big"
+      width = 200
+      height = 200
+      font_size = 48
+    else
+      # normal
+      width = 100
+      height = 100
+      font_size = 20
+    end
+
     case params[:shape]
     when "circle"
-      width = 100
-      height = 100
-      corner_width = 50
-      corner_height = 50
+      corner_width = width/2
+      corner_height = height/2
     when "square"
-      width = 100
-      height = 100
-      corner_width = 10
-      corner_height = 10
+      corner_width = width/10
+      corner_height = height/10
     when "photographer"
-      width = 100
-      height = 100
       corner_width = 2
       corner_height = 2
     else
       # oval
-      width = 100
-      height = 120
-      corner_width = 50
-      corner_height = 60
+      height = height*1.2
+      corner_width = width/2
+      corner_height = height/2
     end
 
     case params[:border]
@@ -320,7 +329,7 @@ class DfmApp < Sinatra::Base
         result["caption"] = "撮影者様"
         result = result.polaroid(5){
           self.font = "./ipam.ttf"
-          self.pointsize = 20
+          self.pointsize = font_size
           self.gravity = Magick::SouthGravity
           self.fill = "black"
           self.border_color = "#f8f8ff"
