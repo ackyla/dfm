@@ -801,6 +801,10 @@ function uploadPhoto() {
 		var file = $("#file")[0];
 		var fr = new FileReader();
 
+		if(!$("#file").val().length){
+				return false;
+		}
+		
 		$photoItemContainer.hide();
 		$photoWrapper.show();
 		$("#photo-inner").remove();
@@ -815,6 +819,8 @@ function uploadPhoto() {
 		$("#loading-photo").show();
 		
 		fr.onload = function(){
+				$("#file").val("");
+
 				$.ajax({
 						url: "upload.json",
 						type: "POST", 
