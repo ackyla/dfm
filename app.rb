@@ -285,6 +285,12 @@ class DfmApp < Sinatra::Base
       gray_scale = false
     end
 
+    # 枠がある時はマスクを枠の分だけ小さくする
+    if stroke_width > 0
+      width -= stroke_width*2
+      height -= stroke_width*2
+    end
+
     id = params[:id]
     user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(#{width}).height(#{height})"})
     fb_url = user.raw_attributes["picture"]["data"]["url"]
@@ -294,14 +300,9 @@ class DfmApp < Sinatra::Base
     dir = "./public#{url}"
 
     begin
-      if stroke_width > 0
-        width -= stroke_width*2
-        height -= stroke_width*2
-      end
-
       absentee = Magick::ImageList.new(fb_url)
       if(absentee.columns != width || absentee.rows != height)
-        absentee = absentee.resize_to_fill(width, height)
+        absentee = absentee.resize(width, height)
       end
       if(gray_scale)
         absentee = absentee.modulate(1.0, 0.0001, 1.0)
