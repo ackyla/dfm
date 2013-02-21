@@ -544,18 +544,24 @@ class DfmApp < Sinatra::Base
     url = "/files/#{session_id}/#{filename}.jpg"
     dir = "./public#{url}"
     img = Magick::Image.from_blob(Base64.decode64(params[:file].split(",")[1])).shift
+    width = img.columns
+    height = img.rows
+    img.write(dir)
 
     #横幅がMAX_WIDTHより大きかったら比率維持して縮小
-    if(img.columns > MAX_WIDTH)
-      img = img.resize_to_fit(MAX_WIDTH, 0)
+    if(width > MAX_WIDTH)
+      img = Imlib2::Image.load(dir)
+      img.crop_scaled!(0, 0, width, height, MAX_WIDTH, height*(MAX_WIDTH.to_f/width))
+      img['quality'] = 90
+      img.save(dir)
+      width = img.w
+      height = img.h
     end
-
-    img.write(dir)
 
     res = {
       "source" => url,
-      "width" => img.columns,
-      "height" => img.rows,
+      "width" => width,
+      "height" => height,
       "tags" => nil
     }
 
