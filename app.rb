@@ -338,13 +338,16 @@ class DfmApp < Sinatra::Base
         absentee = border.composite(absentee, stroke_width, stroke_width, Magick::OverCompositeOp)
       end
 
+      absentee.write(dir)
+
       # shapeがphotographerだったら写真風にする
       if params[:shape] == "photographer"
-        basis = Magick::ImageList.new("./files/photograph_#{params[:size]}.png")
-        absentee = basis.composite(absentee, photo_x, photo_y, Magick::OverCompositeOp)
+        absentee = Imlib2::Image.load(dir)
+        basis = Imlib2::Image.load("./files/photograph_#{params[:size]}.png")
+        absentee = basis.blend(absentee, 0, 0, absentee.w, absentee.h, photo_x, photo_y, absentee.w, absentee.h, false)
+        absentee.attach_value("quality", 95)
+        absentee.save(dir)
       end
-
-      absentee.write(dir)
       
       picture = {"source" => url}
       content_type "application/json; charset=utf-8"
