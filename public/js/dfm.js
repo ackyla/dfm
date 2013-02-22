@@ -644,7 +644,7 @@ function getPhoto($item) {
 		$("#photo-select-wrapper").hide();
 		
 		// ナビメッセージを変更
-		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		$("#navi-message").text("欠席者を追加して集合写真を作成（クリックでフレーム変更）");
 		
 		// ローディングアニメーション表示
 		$("#loading-photo").show();
@@ -813,7 +813,7 @@ function uploadPhoto() {
 		$("#photo-select-wrapper").hide();
 		
 		// ナビメッセージを変更
-		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		$("#navi-message").text("欠席者を追加して集合写真を作成（クリックでフレーム変更）");
 		
 		// ローディングアニメーション表示
 		$("#loading-photo").show();
@@ -908,7 +908,7 @@ function enableAbsenteeMode() {
 		$("#absence-container").show();
 
 		// ナビメッセージを変更
-		$("#navi-message").text("欠席者を追加して集合写真を作成");
+		$("#navi-message").text("欠席者を追加して集合写真を作成（クリックでフレーム変更）");
 		
 		$(".friend-wrapper").unbind("click").click(function(){
 				var id = $(this).attr("data-id");
