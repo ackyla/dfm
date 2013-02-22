@@ -247,23 +247,6 @@ class DfmApp < Sinatra::Base
       font_size = 20
     end
 
-    case params[:shape]
-    when "circle"
-      corner_width = width/2
-      corner_height = height/2
-    when "square"
-      corner_width = width/10
-      corner_height = height/10
-    when "photographer"
-      corner_width = 2
-      corner_height = 2
-    else
-      # oval
-      height = height*1.2
-      corner_width = width/2
-      corner_height = height/2
-    end
-
     case params[:border]
     when "black"
       stroke_width = 2
@@ -275,6 +258,24 @@ class DfmApp < Sinatra::Base
       # white
       stroke_width = 2
       stroke_color = "white"
+    end
+
+    case params[:shape]
+    when "circle"
+      corner_width = width/2
+      corner_height = height/2
+    when "square"
+      corner_width = width/10
+      corner_height = height/10
+    when "photographer"
+      corner_width = 0
+      corner_height = 0
+      stroke_width = 0
+    else
+      # oval
+      height = height*1.2
+      corner_width = width/2
+      corner_height = height/2
     end
     
     case params[:color]
@@ -301,21 +302,29 @@ class DfmApp < Sinatra::Base
 
     begin
       absentee = Magick::ImageList.new(fb_url)
+
+      # Facebookから取得した画像が設定したサイズと違っていたらリサイズ
       if(absentee.columns != width || absentee.rows != height)
         absentee = absentee.resize(width, height)
       end
+
+      # gray_scaleがtrueの時は白黒にする
       if(gray_scale)
         absentee = absentee.modulate(1.0, 0.0001, 1.0)
       end
+      
+      # 角丸の指定あったらマスキングする
+      if corner_width > 0 || corner_height > 0
+        dr = Magick::Draw.new
+        dr.fill = "black"
+        dr.roundrectangle(0, 0, width-1, height-1, corner_width, corner_height)
+        mask = Magick::ImageList.new
+        mask.new_image(width, height) { self.background_color = "none" }
+        dr.draw(mask)
+        absentee = mask.composite(absentee, 0, 0, Magick::SrcInCompositeOp)
+      end
 
-      dr = Magick::Draw.new
-      dr.fill = "black"
-      dr.roundrectangle(0, 0, width-1, height-1, corner_width, corner_height)
-      mask = Magick::ImageList.new
-      mask.new_image(width, height) { self.background_color = "none" }
-      dr.draw(mask)
-      result = mask.composite(absentee, 0, 0, Magick::SrcInCompositeOp)
-
+      # 枠の指定があったら枠を付ける
       if stroke_width > 0
         dr = Magick::Draw.new
         dr.fill = stroke_color
@@ -323,10 +332,25 @@ class DfmApp < Sinatra::Base
         border = Magick::ImageList.new
         border.new_image(width+stroke_width*2, height+stroke_width*2) { self.background_color = "none" }
         dr.draw(border)
-        result = border.composite(result, stroke_width, stroke_width, Magick::OverCompositeOp)
+        absentee = border.composite(absentee, stroke_width, stroke_width, Magick::OverCompositeOp)
       end
 
+      # shapeがphotographerだったら写真風にする
       if params[:shape] == "photographer"
+        absentee.border!(5, 5, "#f0f0ff")
+        absentee.background_color = "none"
+        amplitude = absentee.columns * 0.01
+        wavelength = absentee.rows * 2
+        
+        absentee.rotate!(90)
+        absentee = absentee.wave(amplitude, wavelength)
+        absentee.rotate!(-90)
+
+        shadow = absentee.flop.shadow(5, 5, 2, 0.5)
+        absentee = shadow.composite(absentee, 0, 0, Magick::OverCompositeOp)
+        absentee.rotate!(5)
+      end
+=begin
         result["caption"] = "撮影者様"
         result = result.polaroid(5){
           self.font = "./ipam.ttf"
@@ -337,16 +361,17 @@ class DfmApp < Sinatra::Base
           self.undercolor = "none"
           self.shadow_color = "#202020"
         }
-      end
+=end
+
 
       #result = result.resize_to_fill(width, height)
 =begin
       masked.background_color = "black"
       shadow = masked.shadow(5, 5, 3, 0.4)
-      shadowed = shadow.composite(masked, 0, 0, Magick::OverCompositeOp)
+      shadowed = 
 =end   
 
-      result.write(dir)
+      absentee.write(dir)
       
       picture = {"source" => url}
       content_type "application/json; charset=utf-8"
