@@ -235,16 +235,19 @@ class DfmApp < Sinatra::Base
     when "small"
       width = 50
       height = 50
-      font_size = 12
+      photo_x = 4
+      photo_y = 2
     when "big"
       width = 200
       height = 200
-      font_size = 48
+      photo_x = 16
+      photo_y = 12
     else
       # normal
       width = 100
       height = 100
-      font_size = 20
+      photo_x = 8
+      photo_y = 5
     end
 
     case params[:border]
@@ -337,39 +340,9 @@ class DfmApp < Sinatra::Base
 
       # shapeがphotographerだったら写真風にする
       if params[:shape] == "photographer"
-        absentee.border!(5, 5, "#f0f0ff")
-        absentee.background_color = "none"
-        amplitude = absentee.columns * 0.01
-        wavelength = absentee.rows * 2
-        
-        absentee.rotate!(90)
-        absentee = absentee.wave(amplitude, wavelength)
-        absentee.rotate!(-90)
-
-        shadow = absentee.flop.shadow(5, 5, 2, 0.5)
-        absentee = shadow.composite(absentee, 0, 0, Magick::OverCompositeOp)
-        absentee.rotate!(5)
+        basis = Magick::ImageList.new("./files/photograph_#{params[:size]}.png")
+        absentee = basis.composite(absentee, photo_x, photo_y, Magick::OverCompositeOp)
       end
-=begin
-        result["caption"] = "撮影者様"
-        result = result.polaroid(5){
-          self.font = "./ipam.ttf"
-          self.pointsize = font_size
-          self.gravity = Magick::SouthGravity
-          self.fill = "black"
-          self.border_color = "#f8f8ff"
-          self.undercolor = "none"
-          self.shadow_color = "#202020"
-        }
-=end
-
-
-      #result = result.resize_to_fill(width, height)
-=begin
-      masked.background_color = "black"
-      shadow = masked.shadow(5, 5, 3, 0.4)
-      shadowed = 
-=end   
 
       absentee.write(dir)
       
