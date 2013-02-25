@@ -346,6 +346,10 @@ class DfmApp < Sinatra::Base
         basis = Imlib2::Image.load("./files/photograph_#{params[:size]}.png")
         absentee = basis.blend(absentee, 0, 0, absentee.w, absentee.h, photo_x, photo_y, absentee.w, absentee.h, false)
         absentee.attach_value("quality", 95)
+        # 何かキャッシュしちゃうみたいなのでファイル名新しくふりなおし
+        filename = SecureRandom.hex(16)
+        url = "/files/#{session_id}/#{filename}.png"
+        dir = "./public#{url}"
         absentee.save(dir)
       end
       
