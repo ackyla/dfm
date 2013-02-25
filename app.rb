@@ -558,7 +558,11 @@ class DfmApp < Sinatra::Base
     if(width > MAX_WIDTH)
       img = Imlib2::Image.load(dir)
       img.crop_scaled!(0, 0, width, height, MAX_WIDTH, height*(MAX_WIDTH.to_f/width))
-      img['quality'] = 90
+      img['quality'] = 95
+      # こっちも一応キャッシュ対策
+      filename = SecureRandom.hex(16)
+      url = "/files/#{session_id}/#{filename}.jpg"
+      dir = "./public#{url}"
       img.save(dir)
       width = img.w
       height = img.h
