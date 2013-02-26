@@ -524,7 +524,7 @@ class DfmApp < Sinatra::Base
       end
       
       message = "#{params[:message]}\n" +
-        "-- " +
+        "-- \n" +
         "Don't forget me!!! - 写真に写れなかった全ての人へ…\n" +
         "http://don.t-forget.me\n"
       
