@@ -523,7 +523,10 @@ class DfmApp < Sinatra::Base
         end
       end
       
-      message = "#{params[:message]}\n--------------------------------\n休んだ人も写真に入れてあげましょう。\nDon't forget me!!!\n・http://don.t-forget.me\n--------------------------------"
+      message = "#{params[:message]}\n" +
+        "-- " +
+        "Don't forget me!!! - 写真に写れなかった全ての人へ…\n" +
+        "http://don.t-forget.me\n"
       
       user.photo!(:source => File.new(dir), :message => message, :tags => tags)
       
