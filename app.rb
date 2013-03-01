@@ -7,6 +7,7 @@ require 'RMagick'
 require 'imlib2'
 require 'base64'
 require 'securerandom'
+require 'mongo'
 
 
 class DfmApp < Sinatra::Base
@@ -21,6 +22,7 @@ class DfmApp < Sinatra::Base
     :expire_after => 3600,
     :secret => File.open(".secret").read.split.to_s
     use Rack::Protection
+    @@db = Mongo::Connection.new.db("dfm")
   end
 
   helpers do
@@ -123,6 +125,29 @@ class DfmApp < Sinatra::Base
       session_id = session[:session_id]
       path = "./public/files/#{session_id}"
       FileUtils.mkdir_p(path) unless FileTest.exist?(path)
+      
+      #ユーザの情報をDBに保存
+      fb_user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+      coll = @@db.collection("user")
+      user = coll.find_one("facebook_id" => fb_user.identifier)
+      #新規のユーザだったらデータを作成
+      if user.nil?
+        doc = {
+          "facebook_id" => fb_user.identifier,
+          "user_name" => fb_user.name,
+          "create_date" => Time.now.to_i
+        }
+        user_id = coll.insert(doc)
+      else
+        user_id = user["_id"]
+      end
+      #ログイン情報を保存
+      coll = @@db.collection("login")
+      doc = {
+        "user_id" => user_id,
+        "create_date" => Time.now.to_i
+      }
+      coll.insert(doc)
     rescue
       redirect '/'
     end
@@ -528,7 +553,7 @@ class DfmApp < Sinatra::Base
         "Don't forget me!!! - 写真に写れなかった全ての人へ…\n" +
         "http://don.t-forget.me\n"
       
-      user.photo!(:source => File.new(dir), :message => message, :tags => tags)
+      user.photo!(:source => File.new(dir), :message => message, :tags => tags)#, :privacy => "{'value':'SELF'}")
       
       # ファイルを削除
       #File.delete(session[:path]) if File.exist?(session[:path])
