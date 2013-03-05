@@ -13,16 +13,24 @@ require 'mongo'
 class DfmApp < Sinatra::Base
 
   configure do
-    APP_KEY, APP_SECRET = File.open(".key").read.split
+    # dbの準備
+    db_user, db_pass = File.open(".db_config").read.split
+    con = Mongo::Connection.new
+    con.db("admin").authenticate(db_user, db_pass)
+    @@db = con.db("dfm")
+
+    # dbから設定を読み込み
+    coll = @@db.collection("config")
+    APP_KEY = coll.find_one("key" => "fb_app_key")["value"]
+    APP_SECRET = coll.find_one("key" => "fb_app_secret")["value"]
     MAX_WIDTH = 720;
     use Rack::Session::Cookie,
     :key => 'dfm.session',
     #:domain => 't-forget.me',
     #:path => '/',
-    :expire_after => 3600,
-    :secret => File.open(".secret").read.split.to_s
+    :expire_after => coll.find_one("key" => "session_expiration")["value"],
+    :secret => coll.find_one("key" => "session_secret")["value"]
     use Rack::Protection
-    @@db = Mongo::Connection.new.db("dfm")
   end
 
   helpers do
