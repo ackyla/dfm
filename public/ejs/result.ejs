@@ -9,6 +9,14 @@
 			<label class="checkbox">
 				<input id="use-tag" type="checkbox" checked="checked"/> タグ付けをする
 			</label>
+			<label>
+				公開範囲 <select id="privacy">
+					<option value="10" selected="selected">全体</option>
+					<option value="11">友達の友達</option>
+					<option value="12">友達</option>
+					<option value="13">自分</option>
+				</select>
+			</label>
 			<div id="result-container" style="background: whitesmoke;">
 				<img src="<%= source %>" id="result-image" style="display: block; margin: 5px auto;"/>
 			</div>

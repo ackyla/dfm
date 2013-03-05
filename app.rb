@@ -529,7 +529,7 @@ class DfmApp < Sinatra::Base
   end
 
   # 作成した写真をFacebookに投稿する
-  # Param:: params[:url](合成写真のurl), params[:name](タグ名), params[:x](タグのx座標), params[:y](タグのy座標), params[:message](コメント)
+  # Param:: params[:url](合成写真のurl), params[:name](タグ名), params[:x](タグのx座標), params[:y](タグのy座標), params[:message](コメント), params[:]
   post '/upload' do
 
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
@@ -561,7 +561,24 @@ class DfmApp < Sinatra::Base
         "Don't forget me!!! - 写真に写れなかった全ての人へ…\n" +
         "http://don.t-forget.me\n"
       
-      user.photo!(:source => File.new(dir), :message => message, :tags => tags)#, :privacy => "{'value':'SELF'}")
+      case params[:privacy]
+      when "10"
+        # 全体に公開
+        privacy = "EVERYONE"
+      when "11"
+        # 友達の友達に公開
+        privacy = "FRIENDS_OF_FRIENDS"
+      when "12"
+        # 友達に公開
+        privacy = "ALL_FRIENDS"
+      when "13"
+        # 自分だけ
+        privacy = "SELF"
+      else
+        privacy = "EVERYONE"
+      end
+
+      user.photo!(:source => File.new(dir), :message => message, :tags => tags, :privacy => "{'value':'#{privacy}'}")
       
       # ファイルを削除
       #File.delete(session[:path]) if File.exist?(session[:path])

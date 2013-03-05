@@ -754,6 +754,7 @@ function upload(isRepeated) {
 						url: $("#result-image").attr("src"),
 						message: $("#message").val(),
 						use_tag: $("#use-tag").attr("checked") ? "tag" : "",
+						privacy: $("#privacy").val(),
 						id: $(".absence-wrapper").map(function(){ return $(this).attr("data-id"); }).toArray(),
 						x: $(".position-x").map(function(){ return (parseInt($(this).val())+parseInt($(this).closest(".absence-wrapper").find(".absence-image").width())/2)/width*100; }).toArray(),
 						y: $(".position-y").map(function(){ return (parseInt($(this).val())+parseInt($(this).closest(".absence-wrapper").find(".absence-image").height())/2)/height*100; }).toArray(),
