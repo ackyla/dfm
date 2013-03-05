@@ -532,8 +532,8 @@ class DfmApp < Sinatra::Base
   # Param:: params[:url](合成写真のurl), params[:name](タグ名), params[:x](タグのx座標), params[:y](タグのy座標), params[:message](コメント), params[:]
   post '/upload' do
 
-    user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    flag = user.permissions.include?(:photo_upload)
+    fb_user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
+    flag = fb_user.permissions.include?(:photo_upload)
     if(!flag && params[:is_repeated])
       result = "permission_refused"
     elsif(!flag)
@@ -578,8 +578,59 @@ class DfmApp < Sinatra::Base
         privacy = "EVERYONE"
       end
 
-      user.photo!(:source => File.new(dir), :message => message, :tags => tags, :privacy => "{'value':'#{privacy}'}")
-      
+      # ユーザIDを取得
+      coll = @@db.collection("user")
+      user = coll.find_one("facebook_id" => fb_user.identifier)
+
+      # 写真を保存
+      doc = {
+        "user_id" => user["_id"],
+        "create_date" => Time.now.to_i,
+        "message" => message,
+        "privacy" => privacy,
+        "use_tag" => params[:use_tag] == "tag",
+        "blob" => BSON::Binary.new(photo.to_blob, BSON::Binary::SUBTYPE_BYTES),
+        "width" => photo.columns,
+        "height" => photo.rows
+      }
+      coll = @@db.collection("photo")
+      photo_id = coll.insert(doc)
+
+      # 欠席者を保存
+      coll = @@db.collection("absentee")
+      if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
+        for i in 0..(params[:id].size-1)
+          doc = {
+            "photo_id" => photo_id,
+            "user_id" => user["_id"],
+            "facebook_id" => params[:id][i],
+            "x" => params[:x][i],
+            "y" => params[:y][i],
+            "create_date" => Time.now.to_i
+          }
+          coll.insert(doc)
+        end
+      end
+
+      # 出席者を保存
+      coll = @@db.collection("attendee")
+      if(!params[:attendee_id].nil? && !params[:attendee_x].nil? && !params[:attendee_y].nil?)
+        for i in 0..(params[:attendee_id].size-1)
+          doc = {
+            "photo_id" => photo_id,
+            "user_id" => user["_id"],
+            "facebook_id" => params[:attendee_id][i],
+            "x" => params[:attendee_x][i],
+            "y" => params[:attendee_y][i],
+            "create_date" => Time.now.to_i
+          }
+          coll.insert(doc)
+        end
+      end      
+
+      # 投稿
+      fb_user.photo!(:source => File.new(dir), :message => message, :tags => tags, :privacy => "{'value':'#{privacy}'}")
+
       # ファイルを削除
       #File.delete(session[:path]) if File.exist?(session[:path])
 
