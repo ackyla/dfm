@@ -378,7 +378,7 @@ class DfmApp < Sinatra::Base
         absentee = Imlib2::Image.load(dir)
         basis = Imlib2::Image.load("./files/photograph_#{params[:size]}.png")
         absentee = basis.blend(absentee, 0, 0, absentee.w, absentee.h, photo_x, photo_y, absentee.w, absentee.h, false)
-        absentee.attach_value("quality", 95)
+        absentee.attach_value("quality", 100)
         # 何かキャッシュしちゃうみたいなのでファイル名新しくふりなおし
         filename = SecureRandom.hex(16)
         url = "/files/#{session_id}/#{filename}.png"
@@ -506,7 +506,7 @@ class DfmApp < Sinatra::Base
       end
 
       photo.write(dir){
-        self.quality = 95
+        self.quality = 100
       }
     else
       photo = Imlib2::Image.load("./public#{params[:photo]}")
@@ -516,7 +516,7 @@ class DfmApp < Sinatra::Base
         photo = photo.blend(absentee, 0, 0, absentee.width, absentee.height, absences["x"][i].to_i, absences["y"][i].to_i, absentee.width, absentee.height, false)
       end
 
-      photo.attach_value("quality", 95)
+      photo.attach_value("quality", 100)
       photo.save(dir)
     end
 
@@ -662,7 +662,7 @@ class DfmApp < Sinatra::Base
     if(width > MAX_WIDTH)
       img = Imlib2::Image.load(dir)
       img.crop_scaled!(0, 0, width, height, MAX_WIDTH, height*(MAX_WIDTH.to_f/width))
-      img['quality'] = 95
+      img['quality'] = 100
       # こっちも一応キャッシュ対策
       filename = SecureRandom.hex(16)
       url = "/files/#{session_id}/#{filename}.jpg"
