@@ -684,6 +684,9 @@ class DfmApp < Sinatra::Base
         privacy = "EVERYONE"
       end
 
+      # 投稿
+      fb_res = fb_user.photo!(:source => File.new(dir), :message => message, :tags => tags, :privacy => "{'value':'#{privacy}'}")
+
       # ユーザIDを取得
       coll = @@db.collection("user")
       user = coll.find_one("facebook_id" => fb_user.identifier)
@@ -697,12 +700,13 @@ class DfmApp < Sinatra::Base
         "use_tag" => params[:use_tag] == "tag",
         "blob" => BSON::Binary.new(photo.to_blob, BSON::Binary::SUBTYPE_BYTES),
         "width" => photo.columns,
-        "height" => photo.rows
+        "height" => photo.rows,
+        "fb_photo_id" => fb_res.identifier
       }
       coll = @@db.collection("photo")
       photo_id = coll.insert(doc)
 
-      # 欠席者を保存
+            # 欠席者を保存
       coll = @@db.collection("absentee")
       if(!params[:id].nil? && !params[:x].nil? && !params[:y].nil?)
         for i in 0..(params[:id].size-1)
@@ -732,10 +736,7 @@ class DfmApp < Sinatra::Base
           }
           coll.insert(doc)
         end
-      end      
-
-      # 投稿
-      fb_user.photo!(:source => File.new(dir), :message => message, :tags => tags, :privacy => "{'value':'#{privacy}'}")
+      end
 
       # ファイルを削除
       #File.delete(session[:path]) if File.exist?(session[:path])
