@@ -1,0 +1,26 @@
+<div class="row">
+  <div class="span12">
+		<h1>ユーザ</h1>
+		<hr />
+		<h4>一覧</h4>
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>ユーザ名</th>
+					<th>FacebookID</th>
+					<th>登録日</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @user.each do |user| %>
+				<tr>
+					<td><%= user["user_name"] %></td>
+					<td><a target="_blank" href="http://www.facebook.com/<%= user["facebook_id"]%>".to_s><%= user["facebook_id"] %></a></td>
+					<td><%= Time.at(user["create_date"]).to_s(:db) %></td>
+				</tr>
+				<% end %>
+			<tbody>
+		</table>
+	</div>
+</div>
+

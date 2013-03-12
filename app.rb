@@ -8,7 +8,7 @@ require 'imlib2'
 require 'base64'
 require 'securerandom'
 require 'mongo'
-
+require 'digest/sha2'
 
 class DfmApp < Sinatra::Base
 
@@ -23,7 +23,7 @@ class DfmApp < Sinatra::Base
     coll = @@db.collection("config")
     APP_KEY = coll.find_one("key" => "fb_app_key")["value"]
     APP_SECRET = coll.find_one("key" => "fb_app_secret")["value"]
-    MAX_WIDTH = 720;
+    MAX_WIDTH = 720
     use Rack::Session::Cookie,
     :key => 'dfm.session',
     #:domain => 't-forget.me',
@@ -31,6 +31,11 @@ class DfmApp < Sinatra::Base
     :expire_after => coll.find_one("key" => "session_expiration")["value"],
     :secret => coll.find_one("key" => "session_secret")["value"]
     use Rack::Protection
+    @@use_ssl = true
+  end
+
+  configure :development do
+    @@use_ssl = false
   end
 
   helpers do
@@ -55,6 +60,107 @@ class DfmApp < Sinatra::Base
     "404"
   end
 
+  before '/admin*' do
+    if @@use_ssl
+      if request.scheme == "http"
+        url = "https://#{request.host}#{request.path}"
+        redirect url
+      end
+    end
+  end
+
+  before '/admin/*' do
+    if session[:admin_login].nil?
+      redirect '/admin'
+    end
+  end
+
+  get '/admin' do
+    erb :"admin/login-form", :layout => :"admin/layout"
+  end
+
+  post '/admin' do
+    login = params[:login].nil? ? Hash.new : params[:login]
+    id = login[:id].nil? ? "" : login[:id]
+    password = login[:password].nil? ? "" : login[:password]
+
+    # 認証
+    coll = @@db.collection("config")
+    # idチェック
+    admin_id = coll.find_one({"key" => "admin_id"})
+    if(admin_id.nil? || admin_id["value"] != id)
+      redirect '/admin/login-form'
+    end
+    # passwordチェック
+    admin_password = coll.find_one({"key" => "admin_password"})
+    admin_salt = coll.find_one({"key" => "admin_salt"})
+    if(admin_password.nil? || admin_salt.nil? || admin_password["value"] != Digest::SHA512.hexdigest(admin_salt["value"] + password))
+      redirect '/admin/login-form'
+    end
+
+    # ログインセッション
+    session[:admin_login] = true
+
+    # ログインログ
+    coll = @@db.collection("admin_log")
+    docs = {
+      "create_date" => Time.now.to_i,
+      "request_ip" => request.ip,
+      "request_referer" => request.referer,
+      "request_user_agent" => request.user_agent,
+      "request_secure" => request.secure?
+    }
+    coll.insert(docs)
+
+    redirect '/admin/index'
+  end
+
+  get '/admin/index' do
+    # 新規ユーザ
+    coll_user = @@db.collection("user")
+    @new_user = coll_user.find().sort([:create_date, :desc]).limit(5).to_a
+    @user_count = coll_user.count()
+    # 最新のログイン
+    coll = @@db.collection("login")
+    @new_login = coll.find().sort([:create_date, :desc]).limit(5).to_a.map{|login|
+      user = coll_user.find_one({:_id => login["user_id"]})
+      {
+        "user_name" => user["user_name"],
+        "facebook_id" => user["facebook_id"],
+        "create_date" => login["create_date"]
+      }
+    }
+    @login_count = coll.count()
+    # 新しい欠席写真
+    coll = @@db.collection("photo")
+    @new_photo = coll.find().sort([:create_date, :desc]).limit(10).to_a
+    @photo_count = coll.count()
+    erb :"admin/index", :layout => :"admin/layout"
+  end
+
+  get '/admin/user/index/:page' do
+    offset = params[:page].to_i - 1
+
+    coll_user = @@db.collection("user")
+    @user = coll_user.find().sort([:create_date, :desc]).skip(offset).limit(5).to_a
+    @user_count = coll_user.count()
+    erb :"admin/user_index", :layout => :"admin/layout"
+  end
+
+  get '/admin/admin' do
+    coll = @@db.collection("admin_log")
+    @admin_log = coll.find().sort([:create_date, :desc]).to_a
+    erb :"admin/admin", :layout => :"admin/layout"
+  end
+
+  get '/admin/logout' do
+    session.delete(:admin_login)
+    redirect '/admin'
+  end
+
+  ###########################
+  # 公開
+  ##########################
   get '/' do
     @page_name = ""
     erb :index

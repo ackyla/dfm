@@ -1,0 +1,30 @@
+<div class="row">
+  <div class="span12">
+		<h1>管理者</h1>
+		<hr />
+		<a class="btn" href="/admin/logout">ログアウト</a>
+		<h4>ログインログ</h4>
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>ログイン日</th>
+					<th>IPアドレス</th>
+					<th>ユーザエージェント</th>
+					<th>リファラ</th>
+					<th>SSL</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @admin_log.each do |log| %>
+				<tr>
+					<td><%= Time.at(log["create_date"]).to_s(:db) %></td>
+					<td><%= log["request_ip"] %></td>
+					<td><%= log["request_user_agent"] %></td>
+					<td><%= log["request_referer"] %></td>
+					<td><%= log["request_secure"] %></td>
+				</tr>
+				<% end %>
+			<tbody>
+		</table>
+	</div>
+</div>

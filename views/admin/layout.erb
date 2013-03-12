@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<title><%= @page_name %>Don't forget me!!! | その場にいなかった人も写真に入れてあげましょう</title>
+		<!-- CSS -->
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<!-- /CSS -->
+		<!-- JS -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.0/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="/js/ejs.js"></script>
+		<!-- /JS -->
+		<link href="/img/favicon.ico" rel="shortcut icon" type="image/png">
+		<!--[if lt IE 9]>
+				<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+				<script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+		<![endif]-->
+	</head>
+	<body id="top" style="padding-top: 40px;">
+		<div class="container">
+			<div class="row">
+				<div class="span12">
+					<ul class="nav nav-pills">
+						<li><a href="/admin/index">ホーム</a></li>
+						<li><a href="/admin/user/index/1">ユーザ</a></li>
+						<li><a href="/admin/login/index/1">ログイン</a></li>
+						<li><a href="/admin/photo/index/1">写真</a></li>
+						<li><a href="/admin/absentee/index/1">欠席者</a></li>
+						<li><a href="/admin/attendee/index/1">出席者</a></li>
+						<li><a href="/admin/admin">管理者</a></li>
+					</ul>
+				</div>
+			</div>
+			<%= yield %>
+		</div>
+		<footer class="footer">
+			<div class="container">
+				<p>Copyright &copy; 2013 Don't forget me!!! All rights reserved. Developed by <a href="http://twitter.com/#!/ackyla">@ackyla</a>.</p>
+			</div>
+		</footer>
+	</body>
+</html>
