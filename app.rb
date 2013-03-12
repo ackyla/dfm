@@ -139,11 +139,21 @@ class DfmApp < Sinatra::Base
   end
 
   get '/admin/user/index/:page' do
-    offset = params[:page].to_i - 1
+    limit = 10
+    @page = params[:page].to_i
+
+    if @page < 1
+      redirect '/admin/user/index/1'
+    end
+
+    offset = (params[:page].to_i - 1)*limit
 
     coll_user = @@db.collection("user")
-    @user = coll_user.find().sort([:create_date, :desc]).skip(offset).limit(5).to_a
+    @user = coll_user.find().sort([:create_date, :desc]).skip(offset).limit(limit).to_a
     @user_count = coll_user.count()
+    @from = offset+1
+    @to = (offset+limit) > @user_count ? @user_count : offset+limit
+    @page_count = @user_count / limit + (@user_count % limit == 0 ? 0 : 1)
     erb :"admin/user_index", :layout => :"admin/layout"
   end
 

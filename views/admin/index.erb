@@ -2,7 +2,7 @@
   <div class="span12">
 		<h1>ホーム</h1>
 		<hr />
-		<h4>新規ユーザ</h4>
+		<h4>いんふぉめーしょん</h4>
 		<table class="table table-bordered table-striped">
 			<thead>
 				<tr>
@@ -59,7 +59,7 @@
 		</table>
 		<h4>新しい欠席写真</h4>
 		<% @new_photo.each do |photo| %>
-			<img src="data:image/jpeg;base64,<%= Base64.encode64(photo["blob"].to_s) %>" class="img-polaroid" style="max-width: 200px;"/>
+			<a target="<%= photo["fb_photo_id"].nil? ? "_self" : "_target" %>" href="<%= photo["fb_photo_id"].nil? ? "#" : "https://www.facebook.com/photo.php?fbid="+photo["fb_photo_id"] %>"><img src="data:image/jpeg;base64,<%= Base64.encode64(photo["blob"].to_s) %>" class="img-polaroid" style="max-width: 200px;"/></a>
 		<% end %>
 	</div>
 </div>

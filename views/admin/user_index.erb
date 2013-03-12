@@ -3,6 +3,16 @@
 		<h1>ユーザ</h1>
 		<hr />
 		<h4>一覧</h4>
+		<strong><%= @from %>-<%= @to %>/<%= @user_count %></strong>
+		<div class="pagination">
+			<ul>
+				<li class="<%= @page == 1 ? "disabled" : "" %>"><a href="/admin/user/index/<%= @page-1 %>">Prev</a></li>
+				<% for i in 1..@page_count %>
+				<li class="<%= @page == i ? "active" : "" %>"><a href="/admin/user/index/<%= i %>"><%= i %></a></li>
+				<% end %>
+				<li class="<%= @page == @page_count ? "disabled" : "" %>"><a href="/admin/user/index/<%= @page+1 %>">Next</a></li>
+			</ul>
+		</div>
 		<table class="table table-bordered table-striped">
 			<thead>
 				<tr>
