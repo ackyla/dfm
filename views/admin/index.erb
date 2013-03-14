@@ -31,7 +31,7 @@
 			<tbody>
 				<% @new_user.each do |user| %>
 				<tr>
-					<td><%= user["user_name"] %></td>
+					<td><a href="/admin/user/detail/<%= user["_id"] %>"><%= user["user_name"] %></a></td>
 					<td><a target="_blank" href="http://www.facebook.com/<%= user["facebook_id"]%>".to_s><%= user["facebook_id"] %></a></td>
 					<td><%= Time.at(user["create_date"]).to_s(:db) %></td>
 				</tr>
@@ -50,7 +50,7 @@
 			<tbody>
 				<% @new_login.each do |login| %>
 				<tr>
-					<td><%= login["user_name"] %></td>
+					<td><a href="/admin/user/detail/<%= login["user_id"] %>"><%= login["user_name"] %></a></td>
 					<td><a target="_blank" href="http://www.facebook.com/<%= login["facebook_id"]%>".to_s><%= login["facebook_id"] %></a></td>
 					<td><%= Time.at(login["create_date"]).to_s(:db) %></td>
 				</tr>
@@ -59,7 +59,7 @@
 		</table>
 		<h4>新しい欠席写真</h4>
 		<% @new_photo.each do |photo| %>
-			<a target="<%= photo["fb_photo_id"].nil? ? "_self" : "_target" %>" href="<%= photo["fb_photo_id"].nil? ? "#" : "https://www.facebook.com/photo.php?fbid="+photo["fb_photo_id"] %>"><img src="data:image/jpeg;base64,<%= Base64.encode64(photo["blob"].to_s) %>" class="img-polaroid" style="max-width: 200px;"/></a>
+			<a href="/admin/photo/detail/<%= photo["_id"] %>"><img src="data:image/jpeg;base64,<%= Base64.encode64(photo["blob"].to_s) %>" class="img-polaroid" style="max-width: 200px;"/></a>
 		<% end %>
 	</div>
 </div>

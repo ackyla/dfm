@@ -125,6 +125,7 @@ class DfmApp < Sinatra::Base
     @new_login = coll.find().sort([:create_date, :desc]).limit(5).to_a.map{|login|
       user = coll_user.find_one({:_id => login["user_id"]})
       {
+        "user_id" => user["_id"],
         "user_name" => user["user_name"],
         "facebook_id" => user["facebook_id"],
         "create_date" => login["create_date"]
@@ -155,6 +156,79 @@ class DfmApp < Sinatra::Base
     @to = (offset+limit) > @user_count ? @user_count : offset+limit
     @page_count = @user_count / limit + (@user_count % limit == 0 ? 0 : 1)
     erb :"admin/user_index", :layout => :"admin/layout"
+  end
+
+  get '/admin/user/detail/:id' do
+    id = params[:id].to_s
+
+    if id.length < 1
+      redirect '/admin/user/index/1'
+    end
+
+    coll_user = @@db.collection("user")
+    @user = coll_user.find_one({ "_id" => BSON::ObjectId(id) })
+
+    if @user.nil?
+      redirect '/admin/user/index/1'
+    end
+
+    coll = @@db.collection("login")
+    login = coll.find({ "user_id" => BSON::ObjectId(id) })
+    last_login = login.sort([:create_date, :desc]).limit(1).to_a[0]
+    @last_login = last_login.nil? ? "---" : Time.at(last_login["create_date"]).to_s(:db)
+    @login_count = login.count()
+
+    coll = @@db.collection("photo")
+    photo = coll.find({ "user_id" => BSON::ObjectId(id) })
+    @photo = photo.sort([:create_date, :desc]).to_a
+    last_photo = @photo[0]
+    @last_photo = last_photo.nil? ? "---" : Time.at(last_photo["create_date"]).to_s(:db)
+    @photo_count = photo.count()
+
+    erb :"admin/user_detail", :layout => :"admin/layout"
+  end
+
+  get '/admin/photo/index/:page' do
+    limit = 10
+    @page = params[:page].to_i
+
+    if @page < 1
+      redirect '/admin/photo/index/1'
+    end
+
+    offset = (params[:page].to_i - 1)*limit
+
+    coll_photo = @@db.collection("photo")
+    @photo = coll_photo.find().sort([:create_date, :desc]).skip(offset).limit(limit).to_a
+    @photo_count = coll_photo.count()
+    @from = offset+1
+    @to = (offset+limit) > @photo_count ? @photo_count : offset+limit
+    @page_count = @photo_count / limit + (@photo_count % limit == 0 ? 0 : 1)
+    erb :"admin/photo_index", :layout => :"admin/layout"
+  end
+
+  get '/admin/photo/detail/:id' do
+    id = params[:id].to_s
+
+    if id.length < 1
+      redirect '/admin/photo/index/1'
+    end
+
+    photo = @@db.collection("photo")
+    @photo = photo.find_one({ "_id" => BSON::ObjectId(id) })
+
+    if @photo.nil?
+      redirect '/admin/photo/index/1'
+    end
+
+    user = @@db.collection("user")
+    @user = user.find_one({ "_id" => @photo["user_id"] })
+
+    if @user.nil?
+      redirect '/admin/photo/index/1'
+    end
+
+    erb :"admin/photo_detail", :layout => :"admin/layout"
   end
 
   get '/admin/admin' do

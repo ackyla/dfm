@@ -24,7 +24,7 @@
 			<tbody>
 				<% @user.each do |user| %>
 				<tr>
-					<td><%= user["user_name"] %></td>
+					<td><a href="/admin/user/detail/<%= user["_id"] %>"><%= user["user_name"] %></a></td>
 					<td><a target="_blank" href="http://www.facebook.com/<%= user["facebook_id"]%>".to_s><%= user["facebook_id"] %></a></td>
 					<td><%= Time.at(user["create_date"]).to_s(:db) %></td>
 				</tr>

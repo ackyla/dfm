@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="span12">
+		<h1>写真</h1>
+		<hr />
+		<h4>一覧</h4>
+		<strong><%= @from %>-<%= @to %>/<%= @photo_count %></strong>
+		<div class="pagination">
+			<ul>
+				<li class="<%= @page == 1 ? "disabled" : "" %>"><a href="/admin/photo/index/<%= @page-1 %>">Prev</a></li>
+				<% for i in 1..@page_count %>
+				<li class="<%= @page == i ? "active" : "" %>"><a href="/admin/photo/index/<%= i %>"><%= i %></a></li>
+				<% end %>
+				<li class="<%= @page == @page_count ? "disabled" : "" %>"><a href="/admin/photo/index/<%= @page+1 %>">Next</a></li>
+			</ul>
+		</div>
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>写真</th>
+					<th>メッセージ</th>
+					<th>公開設定</th>
+					<th>タグ</th>
+					<th>投稿日</th>
+				</tr>
+			</thead>
+			<tbody>
+				<% @photo.each do |photo| %>
+				<tr>
+					<td><a href="/admin/photo/detail/<%= photo["_id"] %>"><img src="data:image/jpeg;base64,<%= Base64.encode64(photo["blob"].to_s) %>" class="img-polaroid" style="max-width: 200px;"/></a></td>
+					<td><%= photo["message"].gsub(/\n/, "<br />") %></td>
+					<td><%= photo["privacy"] %></td>
+					<td><%= photo["use_tag"] %></td>
+					<td><%= Time.at(photo["create_date"]).to_s(:db) %></td>
+				</tr>
+				<% end %>
+			<tbody>
+		</table>
+	</div>
+</div>
+
