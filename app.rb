@@ -385,13 +385,13 @@ class DfmApp < Sinatra::Base
       }
     }
 
-    if(params[:offset].to_i == 0)
-      photos = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})
+    #if(params[:offset].to_i == 0)
+    #  photos = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})
       # 自分が写っている写真が1枚以上あった時はアルバムとして表示する
-      if(photos.count > 0)
-        albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
-      end
-    end
+   #   if(photos.count > 0)
+   #     albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
+   #   end
+   # end
 
 
     response = {
