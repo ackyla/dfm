@@ -379,30 +379,6 @@ class DfmApp < Sinatra::Base
     albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
     offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
 
-    temp = Array::new
-    error = nil
-    error_num = ""
-    begin
-      albums.to_a.each{|album|
-        error_num += "id="
-        id = album.identifier
-        error_num += "#{id}::"
-        error_num += "name="
-        name = album.name
-        error_num += "#{name}::"
-        error_num += "cover="
-        cover = album.cover_photo
-        error_num += "#{cover.nil?}::"
-        error_num += "source="
-        source = cover.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source
-        error_num += "#{source}::"
-
-        temp.push({"id" => id, "name" => name, "source" => source})
-      }
-    rescue => e
-
-    end
-=begin
     albums = albums.to_a.map{|album|
       {
         "id" => album.identifier,
@@ -423,10 +399,8 @@ class DfmApp < Sinatra::Base
       "albums" => albums,
       "offset" => offset,
     }
-=end
     content_type "application/json; charset=utf-8"
-    #response.to_json
-    error_num.to_json
+    response.to_json
   end
 
   # 自分のタグが付いた写真を取得
