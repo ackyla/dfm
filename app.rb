@@ -379,6 +379,21 @@ class DfmApp < Sinatra::Base
     albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
     offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
 
+    map = Array::new
+    albums.to_a.each{|album|
+      id = album.identifier
+      name = album.name
+      cover_photo = album.cover_photo
+      begin
+        source = cover_photo.nil? ? nil : cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source
+      rescue
+        source = nil
+      end
+      
+      map.push({"id" => id, "name" => name, "source" => source})
+    }
+
+=begin
     albums = albums.to_a.map{|album|
       {
         "id" => album.identifier,
@@ -386,17 +401,18 @@ class DfmApp < Sinatra::Base
         "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source,
       }
     }
+=end
 
     if(params[:offset].to_i == 0)
       photos = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})
       # 自分が写っている写真が1枚以上あった時はアルバムとして表示する
       if(photos.count > 0)
-        albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
+        map.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
       end
     end
 
     response = {
-      "albums" => albums,
+      "albums" => map,
       "offset" => offset,
     }
     content_type "application/json; charset=utf-8"
