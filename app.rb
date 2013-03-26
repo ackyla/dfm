@@ -375,43 +375,58 @@ class DfmApp < Sinatra::Base
   # Return:: json
   get '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
-    begin
-      albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
-    rescue
-      halt(500)
-    end
+    
+    albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
     offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
+
+    temp = Array::new
+    error = nil
+    error_num = ""
     begin
-      albums = albums.to_a.map{|album|
-        {
-          "id" => album.identifier,
-          "name" => album.name,
-          "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source,
-        }
+      albums.to_a.each{|album|
+        error_num += "id="
+        id = album.identifier
+        error_num += "#{id}::"
+        error_num += "name="
+        name = album.name
+        error_num += "#{name}::"
+        error_num += "cover="
+        cover = album.cover_photo
+        error_num += "#{cover.to_a}::"
+        error_num += "source="
+        source = cover.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source
+        error_num += "#{source}::"
+
+        temp.push({"id" => id, "name" => name, "source" => source})
       }
-    rescue
-      halt(404)
-    end
+    rescue => e
 
-    begin
-      if(params[:offset].to_i == 0)
-        photos = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})
-        # 自分が写っている写真が1枚以上あった時はアルバムとして表示する
-        if(photos.count > 0)
-          albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
-        end
+    end
+=begin
+    albums = albums.to_a.map{|album|
+      {
+        "id" => album.identifier,
+        "name" => album.name,
+        "source" => album.cover_photo.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source,
+      }
+    }
+
+    if(params[:offset].to_i == 0)
+      photos = user.photos({"type" => "tagged", "limit" => 1, :fields => "source"})
+      # 自分が写っている写真が1枚以上あった時はアルバムとして表示する
+      if(photos.count > 0)
+        albums.unshift({"id" => 0, "name" => "あなたが写っている写真", "source" => photos[0].source, "tags" => Array::new})
       end
-    rescue
-      halt(401)
     end
-
 
     response = {
       "albums" => albums,
       "offset" => offset,
     }
+=end
     content_type "application/json; charset=utf-8"
-    response.to_json
+    #response.to_json
+    error_num.to_json
   end
 
   # 自分のタグが付いた写真を取得
