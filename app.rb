@@ -392,7 +392,7 @@ class DfmApp < Sinatra::Base
         error_num += "#{name}::"
         error_num += "cover="
         cover = album.cover_photo
-        error_num += "#{cover.to_a}::"
+        error_num += "#{cover.nil?}::"
         error_num += "source="
         source = cover.nil? ? nil : album.cover_photo.fetch({:access_token => session[:token], :fields => "source"}).source
         error_num += "#{source}::"
