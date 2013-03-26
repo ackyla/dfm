@@ -82,7 +82,7 @@ function getFriends() {
 		// 友達リストを取得
 		$.ajax({
 				url: "friends.json",
-				type: "POST",
+				type: "GET",
 				dataType: "json",
 				success: function(json){
 						var $friends = $(new EJS({
@@ -182,7 +182,7 @@ function getAlbums(offset) {
 		// アルバムリストを取得
 		$.ajax({
 				url: "albums.json",
-				type: "POST",
+				type: "GET",
 				dataType: "json",
 				data: {
 						offset: offset
@@ -275,7 +275,7 @@ function getPhotos(id, offset) {
 		if(id == "0"){
 				$.ajax({
 						url: "tagged_photos.json",
-						type: "POST",
+						type: "GET",
 						dataType: "json",
 						data: {
 								offset: offset
@@ -320,7 +320,7 @@ function getPhotos(id, offset) {
 		}else{
 				$.ajax({
 						url: "photos.json",
-						type: "POST",
+						type: "GET",
 						dataType: "json",
 						data: {
 								id: id,
@@ -382,7 +382,7 @@ function updateClosely(id, absentees, attendees, operator) {
 		
 		$.ajax({
 				url: "closely.json",
-				type: "POST",
+				type: "GET",
 				dataType: "json",
 				data: {
 						id: id,

@@ -355,7 +355,7 @@ class DfmApp < Sinatra::Base
 
   # 友達リストを取得
   # Return:: json
-  post '/friends.json' do
+  get '/friends.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     friends = user.friends({"locale" => "ja_JP", :fields => "id, name, picture.width(34).height(34)"})
     friends = friends.to_a.map{|friend|
@@ -373,7 +373,7 @@ class DfmApp < Sinatra::Base
   # アルバムリストを取得
   # Param:: params[:offset](オフセット)
   # Return:: json
-  post '/albums.json' do
+  get '/albums.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     albums = user.albums({"locale" => "ja_JP", "offset" => params[:offset], :fields => "id, name, cover_photo"})
     offset = albums.next.empty? ? nil : (params[:offset].to_i + albums.count)
@@ -405,7 +405,7 @@ class DfmApp < Sinatra::Base
   # 自分のタグが付いた写真を取得
   # Param:: params[:offset](オフセット)
   # Return:: json
-  post '/tagged_photos.json' do
+  get '/tagged_photos.json' do
     user = FbGraph::User.me(session[:token]).fetch({"locale" => "ja_JP"})
     photos = user.photos({"type" => "tagged", "offset" => params[:offset], :fields => "id, name, source"})
     offset = photos.next.empty? ? nil : (params[:offset].to_i + photos.count)
@@ -428,7 +428,7 @@ class DfmApp < Sinatra::Base
   # アルバムの写真を取得
   # Param:: params[:id](アルバムID), params[:offset](オフセット)
   # Return:: json
-  post '/photos.json' do
+  get '/photos.json' do
     id = params[:id]
     album = FbGraph::Album.new(id, :access_token => session[:token]).fetch
     photos = album.photos({"offset" => params[:offset], :fields => "id, name, source"})
@@ -626,7 +626,7 @@ class DfmApp < Sinatra::Base
   # 既に追加されている出席・欠席者に対してそれぞれ共通の友達を取得し合計を計算する
   # Param:: params[:absences](既に追加されている欠席者のFacebookID), params[:tags](出席者のFacebookID), params[:id](追加する欠席者のFacebookID)
   # Return:: json
-  post '/closely.json' do
+  get '/closely.json' do
     #既に追加されている欠席者
     absences = params[:absences].nil? ? Array::new : params[:absences]
     #タグ付けされたユーザのID
