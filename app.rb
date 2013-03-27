@@ -477,17 +477,23 @@ class DfmApp < Sinatra::Base
       height = 50
       photo_x = 4
       photo_y = 2
+      iei_x = 10
+      iei_y = 14
     when "big"
       width = 200
       height = 200
       photo_x = 16
       photo_y = 12
+      iei_x = 42
+      iei_y = 54
     else
       # normal
       width = 100
       height = 100
       photo_x = 8
       photo_y = 5
+      iei_x = 21
+      iei_y = 27
     end
 
     case params[:border]
@@ -511,6 +517,11 @@ class DfmApp < Sinatra::Base
       corner_width = width/10
       corner_height = height/10
     when "photographer"
+      corner_width = 0
+      corner_height = 0
+      stroke_width = 0
+    when "iei"
+      height = height*1.2
       corner_width = 0
       corner_height = 0
       stroke_width = 0
@@ -585,6 +596,20 @@ class DfmApp < Sinatra::Base
         absentee = Imlib2::Image.load(dir)
         basis = Imlib2::Image.load("./files/photograph_#{params[:size]}.png")
         absentee = basis.blend(absentee, 0, 0, absentee.w, absentee.h, photo_x, photo_y, absentee.w, absentee.h, false)
+        absentee.attach_value("quality", 100)
+        # 何かキャッシュしちゃうみたいなのでファイル名新しくふりなおし
+        filename = SecureRandom.hex(16)
+        url = "/files/#{session_id}/#{filename}.png"
+        dir = "./public#{url}"
+        absentee.save(dir)
+      end
+
+      # shapeがieiだったら遺影風にする
+      if params[:shape] == "iei"
+        absentee = Imlib2::Image.load(dir)
+        frame = Imlib2::Image.load("./files/iei_#{params[:size]}.png")
+        absentee = frame.blend(absentee, 0, 0, absentee.w, absentee.h, iei_x, iei_y, absentee.w, absentee.h, false)
+        absentee = absentee.blend(frame, 0, 0, frame.w, frame.h, 0, 0, frame.w, frame.h, false)
         absentee.attach_value("quality", 100)
         # 何かキャッシュしちゃうみたいなのでファイル名新しくふりなおし
         filename = SecureRandom.hex(16)
