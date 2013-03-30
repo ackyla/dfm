@@ -468,9 +468,10 @@ function addAbsentee(id) {
 				dataType: "json",
 				data: {
 						id: id,
-						shape: "oval",
-						border: "white",
-						color: "color"
+						shape: "iei",
+						//border: "white",
+						color: "gray",
+						size: "normal"
 				},
 				success: function(json){
 
