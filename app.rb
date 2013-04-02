@@ -277,7 +277,7 @@ class DfmApp < Sinatra::Base
     
     @is_ie = ua.include?('MSIE') ? true : false
     @page_name = "写真作成 | "
-    @page_js = "<script type='text/javascript' src='js/dfm.js?201303310305' charset='utf-8'></script>"
+    @page_js = "<script type='text/javascript' src='js/dfm.js?201304021800' charset='utf-8'></script>"
     erb :edit
   end
   
