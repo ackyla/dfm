@@ -543,7 +543,7 @@ class DfmApp < Sinatra::Base
     end
 
     id = params[:id]
-    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(#{width}).height(#{height})"})
+    user = FbGraph::User.new(id, :access_token => session[:token]).fetch({"fields" => "picture.width(#{width.round}).height(#{height.round})"})
     fb_url = user.raw_attributes["picture"]["data"]["url"]
     session_id = session[:session_id]
     filename = SecureRandom.hex(16)
